@@ -8,14 +8,18 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page">Signup</a>
+                    <li class="nav-item" v-if="!isLoggedIn">
+                        <router-link class="nav-link" to="signup">Signup</router-link>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link">Login</a>
+                    <li class="nav-item" v-if="!isLoggedIn">
+                        <router-link class="nav-link" to="login">Login</router-link>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link">Logout</a>
+                    <li class="nav-item" v-if="isLoggedIn">
+                        <router-link class="nav-link" :to="role" style="text-transform: capitalize;">{{ role
+                        }}</router-link>
+                    </li>
+                    <li class="nav-item" v-if="isLoggedIn">
+                        <a class="nav-link" @click="handleLogout()">Logout</a>
                     </li>
                 </ul>
             </div>
@@ -24,5 +28,21 @@
 </template>
 
 <script>
-export default {}
+export default {
+    computed: {
+        isLoggedIn() {
+            console.log("computed", this.$store.getters.userRole);
+            return this.$store.getters.isAuthenticated;
+        },
+        role() {
+            return this.$store.getters.userRole
+        }
+    },
+    methods: {
+        handleLogout() {
+            this.$store.dispatch('logout');
+            this.$router.replace('/login');
+        }
+    }
+}
 </script>

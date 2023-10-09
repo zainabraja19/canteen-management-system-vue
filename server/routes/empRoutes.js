@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
 //         //         $inc: { 'items.$[elem].quantity': 1 }
 //         //     }
 //         //     const options = {
-//         //         upsert: true,
+//         /delete-from-/         upsert: true,
 //         //         arrayFilters: [{ 'elem.item': req.body.itemId }] // Filter to identify the specific item to update
 //         //     };
 //         //     console.log(filter, update, options)

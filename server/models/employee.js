@@ -63,23 +63,14 @@ employeeSchema.statics.handleError = (error) => {
     if (error.name === "ValidationError" && error.errors) {
         Object.keys(error.errors).map(key => {
             console.log(key)
-            errors[key] = error.errors[key].message
+            errors[key] = { message: error.errors[key].message, type: error.errors[key].kind }
+            // console.log();
             console.log(errors)
 
         })
     }
 
     return errors
-}
-
-employeeSchema.methods.generateAuthToken = async function () {
-    const emp = this
-    const token = jwt.sign({ _id: emp._id.toString() }, process.env.JWT_SECRET)
-
-    // emp.tokens = emp.tokens.concat({ token })
-    // await emp.save()
-
-    return token
 }
 
 employeeSchema.statics.findByCredentials = async (email, password) => {

@@ -24,12 +24,12 @@ router.post('/signup', checkLoggedIn, async (req, res) => {
 router.post('/login', checkLoggedIn,
     passport.authenticate(
         'login', {
-        failureFlash: true
     }),
     (req, res) => {
         try {
             // console.log("req", req.user)
             // res.cookie('userid', req.user.id, { maxAge: 3 * 24 * 60 * 60 * 1000 });
+            req.user.expiresIn = req.session.cookie._expires
             res.status(200).json({ data: req.user });
         } catch (e) {
             console.log("login", e)
