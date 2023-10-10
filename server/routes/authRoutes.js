@@ -1,9 +1,7 @@
 const router = require('express').Router();
 const Employee = require('../models/employee')
 const passport = require('passport');
-const auth = require('../middleware/auth')
 const { checkAuthenticated, checkLoggedIn } = require('../middleware/auth')
-const jwt = require('jsonwebtoken')
 
 // User registration
 router.post('/signup', checkLoggedIn, async (req, res) => {
