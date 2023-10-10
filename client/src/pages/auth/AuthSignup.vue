@@ -4,17 +4,10 @@
             <div class="card m-4 p-4 col-xl-5 col-lg-6 col-md-8 col-12">
                 <h4 class="text-center fw-bold">SIGNUP</h4>
                 <div class="card-body">
-                    <!-- <div class="alert alert-danger alert-dismissible fade show text-capitalize" role="alert"
-                        v-if="Object.keys(error).length !== 0">
-                        {{ error }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div> -->
-
                     <form class="row g-3" @submit.prevent="onSubmit()">
                         <div class="col-12">
                             <label for="empId" class="form-label">Employee ID</label>
                             <input type="text" class="form-control" id="empId" name="empId" v-model.trim="empId" />
-                            <!-- {{ empId.$touch }} -->
                             <div class="text-danger mt-2" v-if="error.empId" style="text-transform: capitalize;">
                                 <i class="bi bi-info-circle"></i> {{ error.empId }}
                             </div>
@@ -66,35 +59,56 @@
 </template>
 
 <script>
+import { Validator } from '../../services/Validator'
+
 export default {
     data() {
         return {
-            empId: null,
-            name: null,
-            email: null,
-            phone: null,
-            password: null,
+            empId: '',
+            name: '',
+            email: '',
+            phone: '',
+            password: '',
             error: {},
-            formIsValid: true
         }
     },
-    // computed: {
-    //     isError() {
-    //         if (this.empId === '') {
-    //             this.error.empId = "x"
-    //             return 'EmpId is required'
-    //         }
-    //         return false
-    //     }
-    // },
-    //     watch: {
-    // empId
-    //     },
+    computed: {
+        formIsValid() {
+            if (this.empId === '' || this.name === '' || this.email === '' || this.phone === '' || this.password === '') {
+                return false
+            } else if (!this.error.empId && !this.error.name && !this.error.email && !this.error.phone && !this.error.password) {
+                return true
+            }
+            return false
+        }
+    },
+    watch: {
+        empId(curVal) {
+            const error = Validator('empId', curVal)
+            this.error.empId = error.empId
+        },
+        name(curVal) {
+            const error = Validator('name', curVal)
+            this.error.name = error.name
+        },
+        email(curVal) {
+            const error = Validator('email', curVal)
+            this.error.email = error.email
+        },
+        phone(curVal) {
+            const error = Validator('phone', curVal)
+            this.error.phone = error.phone
+        },
+        password(curVal) {
+            const error = Validator('password', curVal)
+            this.error.password = error.password
+        }
+    },
     methods: {
         async onSubmit() {
             try {
                 this.formIsValid = true
-                console.log(this.$refs);
+
                 const actionPayload = {
                     empId: this.empId,
                     name: this.name,
@@ -104,12 +118,9 @@ export default {
                 }
                 await this.$store.dispatch('signup', actionPayload);
 
-                const role = this.$store.getters.userRole;
-                this.$router.push(`/${role}`);
+                this.$router.push(`/login`);
             } catch (err) {
-                this.formIsValid = false
                 this.error = err.error
-                console.log("in signup", this.error);
             }
         }
     }

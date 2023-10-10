@@ -24,15 +24,14 @@ export default {
             })
         })
         const responseData = await response.json();
-
+        // Handle error
         if (!responseData.data && responseData.error) {
             context.dispatch('handleError', {
                 error: responseData.error,
             });
         }
-        console.log(responseData.data)
+        // Auto logout when user session expires
         const expirationDuration = new Date(responseData.data.expiresIn).getTime() - new Date().getTime() - 100
-        console.log("exp duration", expirationDuration);
         timer = setTimeout(function () {
             context.dispatch('autoLogout');
         }, expirationDuration);
@@ -51,14 +50,6 @@ export default {
     handleError(context, payload) {
         let errorMessage = 'An error occurred. Please try again!'
         let errors = payload.error
-        // throw { error: payload.error }
-        // let errors = {
-        //     empId: '',
-        //     name: '',
-        //     email: '',
-        //     phone: '',
-        //     password: ''
-        // }
 
         if (errors) {
             errorMessage = errors
@@ -68,7 +59,6 @@ export default {
                 }
             })
             console.log(payload.error);
-            // console.log(fields);
             throw { error: errors }
 
         }

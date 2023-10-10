@@ -49,8 +49,8 @@ const employeeSchema = mongoose.Schema({
     }
 })
 
+// Handle signup errors
 employeeSchema.statics.handleError = (error) => {
-    console.log(error.name)
     const errors = {}
 
     // Handle duplicate key error
@@ -62,17 +62,14 @@ employeeSchema.statics.handleError = (error) => {
     // Handle validation error
     if (error.name === "ValidationError" && error.errors) {
         Object.keys(error.errors).map(key => {
-            console.log(key)
-            errors[key] = { message: error.errors[key].message, type: error.errors[key].kind }
-            // console.log();
-            console.log(errors)
-
+            errors[key] = error.errors[key].message
         })
     }
 
     return errors
 }
 
+// Find/verify user for login
 employeeSchema.statics.findByCredentials = async (email, password) => {
     // try {
     const emp = await Employee.findOne({ email })

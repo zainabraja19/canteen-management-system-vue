@@ -30,12 +30,11 @@ router.beforeEach(function (to, _, next) {
     } else {
         if (!store.getters.isAuthenticated) {
             next('/login');
-            return; // Stop execution here
+            return;
         } else if (to.meta.role && to.meta.role.indexOf(store.getters.userRole) === -1) {
             next('/');
-            return; // Stop execution here
+            return;
         }
-        // If none of the conditions above are met, proceed to the next route
     }
 
     next();

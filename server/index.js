@@ -1,10 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors');
-const Employee = require('./models/employee')
-const Admin = require('./models/admin')
-const Menu = require('./models/menu')
-const Order = require('./models/orders')
 const passport = require('passport');
 const session = require('express-session')
 const { checkAuthenticated, verifyRole } = require('./middleware/auth')
@@ -14,20 +10,12 @@ mongoose.connect('mongodb://127.0.0.1:27017/canteenDB').then(() => {
     console.log("Connected to DB!")
 })
 
-// const corsOptions = {
-//     origin: 'http://localhost:4200',
-//     credentials: true,            //access-control-allow-credentials:true
-//     optionSuccessStatus: 200
-// }
-// app.use(cors(corsOptions));
-
 const corsConfig = {
     origin: true,
     credentials: true,
 };
 
 app.use(cors(corsConfig));
-// app.options('*', cors(corsConfig))
 
 app.use(express.json())
 
@@ -35,7 +23,7 @@ app.use(session({
     secret: "secret",
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 3 * 60 * 60 * 1000 } // 3 hours
+    cookie: { maxAge: 3 * 60 * 60 * 1000 } // 1 hour
 }))
 
 app.use(passport.initialize());
@@ -46,17 +34,12 @@ require('./utils/passport')
 app.use('/auth', require('./routes/authRoutes'));
 app.use(
     '/employee',
-    // verifyToken,
-    // verifyEmployee,
-    // passport.authenticate('jwt'),
     checkAuthenticated,
     verifyRole('employee'),
     require('./routes/empRoutes')
 );
 app.use(
     '/admin',
-    // verifyToken,
-    // verifyAdmin,
     checkAuthenticated,
     verifyRole('admin'),
     require('./routes/adminRoutes')
