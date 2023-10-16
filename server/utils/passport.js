@@ -18,7 +18,9 @@ passport.use(
 
                 const emp = { ...employee.toObject() };
                 delete emp.password;
-                delete emp.__v
+                // delete emp.__v
+                // if (emp.profilePicture) { delete emp.profilePicture }
+                // if (emp.profilePicture) { delete emp.profilePicture }
 
                 return done(null, emp, { message: 'Logged in Successfully' });
             } catch (error) {

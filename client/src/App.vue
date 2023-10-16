@@ -1,9 +1,9 @@
 <template>
   <div>
     <the-header></the-header>
-    <div class="container d-flex justify-content-center align-items-center">
+    <div class="container">
       <div class="row mt-4">
-        <div class="col-md-12">
+        <div class="col-md-12 w-100">
           <router-view></router-view>
         </div>
       </div>
@@ -20,19 +20,23 @@ export default {
   computed: {
     didAutoLogout() {
       return this.$store.getters.didAutoLogout;
-    }
+    },
   },
   created() {
-    console.log("here");
-    this.$store.dispatch('autoLogin');
+    this.$store.dispatch('auth/autoLogin');
+    // const user = this.$store.getters.user;
+    // if (user) {
+    //   this.$store.commit('setUserProfilePicture', {
+    //     profile: user.profilePicture,
+    //   });
+    // }
   },
   watch: {
     didAutoLogout(curValue, oldValue) {
-      console.log("watcher", curValue, oldValue);
       if (curValue && curValue !== oldValue) {
         this.$router.replace('/login');
       }
-    }
-  }
+    },
+  },
 };
 </script>

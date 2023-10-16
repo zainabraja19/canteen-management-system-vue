@@ -1,45 +1,58 @@
-const mongoose = require('mongoose')
-const moment = require('moment')
+const mongoose = require('mongoose');
+const moment = require('moment');
+// const autoIncrement = require('mongoose-auto-increment');
+// autoIncrement.initialize(mongoose);
 
 const orderSchema = mongoose.Schema({
     employee: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         required: true,
-        ref: 'Employee'
+        ref: 'Employee',
+    },
+    orderId: {
+        type: Number,
+        unique: true,
     },
     items: [
         {
             item: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Menu',
-                required: true
+                required: true,
             },
-            quantity: { type: Number, required: true }
+            quantity: { type: Number, required: true },
         },
     ],
     totalAmount: {
         type: Number,
-        required: true
+        required: true,
     },
     isPaid: {
         type: Boolean,
-        // required: true
+        // required: true, // Uncomment if it should be required
     },
     paymentMode: {
         type: String,
-        required: true,
+        // required: true, // Uncomment if it should be required
         enum: ['online', 'cod'],
     },
     completed: {
         type: Boolean,
-        default: false
+        default: false,
     },
     orderDate: {
         type: Date,
-        default: moment.now()
-    }
-})
+        default: Date.now, // Use a function reference for default value
+    },
+});
 
-const Order = mongoose.model('Order', orderSchema)
+// orderSchema.plugin(autoIncrement.plugin, {
+//     model: 'Order',
+//     field: 'orderId',
+//     startAt: 1,
+//     incrementBy: 1,
+// });
 
-module.exports = Order
+const Order = mongoose.model('Order', orderSchema);
+
+module.exports = Order;

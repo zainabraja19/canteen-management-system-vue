@@ -12,7 +12,7 @@
             <div class="col-12">
               <label for="email" class="form-label">Email</label>
               <input type="email" class="form-control" id="email" name="email" v-model.trim="email" required />
-              <div class="text-danger mt-2" v-if="errors.email" style="text-transform: capitalize;">
+              <div class="text-danger mt-2" v-if="errors.email" style="text-transform: capitalize">
                 <i class="bi bi-info-circle"></i> {{ errors.email }}
               </div>
             </div>
@@ -20,12 +20,14 @@
               <label for="password" class="form-label">Password</label>
               <input type="password" class="form-control" id="password" name="password" v-model.trim="password" required
                 minlength="6" />
-              <div class="text-danger mt-2" v-if="errors.password" style="text-transform: capitalize;">
+              <div class="text-danger mt-2" v-if="errors.password" style="text-transform: capitalize">
                 <i class="bi bi-info-circle"></i> {{ errors.password }}
               </div>
             </div>
             <div class="col-12 d-grid mt-4">
-              <button type="submit" class="btn btn-primary" :disabled="!formIsValid">Sign In</button>
+              <button type="submit" class="btn btn-primary" :disabled="!formIsValid">
+                Sign In
+              </button>
             </div>
             <hr />
             <div class="mt-0 text-secondary float-right">
@@ -40,7 +42,7 @@
 </template>
 
 <script>
-import { Validator } from '../../services/Validator'
+import { Validator } from '../../services/Validator';
 
 export default {
   data() {
@@ -53,41 +55,39 @@ export default {
   computed: {
     formIsValid() {
       if (this.email === '' || this.password === '') {
-        return false
+        return false;
       } else if (!this.errors.email && !this.errors.password) {
-        return true
+        return true;
       }
-      return false
-    }
+      return false;
+    },
   },
   watch: {
     email(curVal) {
-      const errors = Validator('email', curVal)
-      this.errors.email = errors.email
+      const errors = Validator('email', curVal);
+      this.errors.email = errors.email;
     },
     password(curVal) {
-      const errors = Validator('password', curVal)
-      this.errors.password = errors.password
-    }
+      const errors = Validator('password', curVal);
+      this.errors.password = errors.password;
+    },
   },
   methods: {
     async onSubmit() {
       try {
-        this.formIsValid = true
-
         const actionPayload = {
           email: this.email,
           password: this.password,
         };
 
-        await this.$store.dispatch('login', actionPayload);
+        await this.$store.dispatch('auth/login', actionPayload);
 
-        const role = this.$store.getters.userRole;
+        const role = this.$store.getters['auth/userRole'];
 
-        this.errors.login = null
+        this.errors.login = null;
         this.$router.push(`/${role}`);
       } catch (err) {
-        this.errors.login = err.error
+        this.errors.login = err.error;
       }
     },
   },

@@ -5,6 +5,9 @@ const passport = require('passport');
 const session = require('express-session')
 const { checkAuthenticated, verifyRole } = require('./middleware/auth')
 const app = express()
+require('dotenv').config();
+
+const port = process.env.PORT
 
 mongoose.connect('mongodb://127.0.0.1:27017/canteenDB').then(() => {
     console.log("Connected to DB!")
@@ -23,7 +26,12 @@ app.use(session({
     secret: "secret",
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 3 * 60 * 60 * 1000 } // 1 hour
+    cookie: {
+        maxAge: 3 * 60 * 60 * 1000,
+        secure: false,
+        httpOnly: false
+        // sameSite: 'None',
+    } // 1 hour
 }))
 
 app.use(passport.initialize());
@@ -54,6 +62,6 @@ app.use((err, req, res, next) => {
     return res.status(500).json({ data: null, error: 'Internal Server Error' });
 });
 
-app.listen(3000, () => {
-    console.log("Listening on port 3000!")
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Listening on port ${port}!`)
 })

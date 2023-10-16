@@ -3,8 +3,14 @@ import actions from './actions'
 import getters from './getters'
 
 export default ({
+    namespaced: true,
     state() {
-        return {};
+        return {
+            profilePicture: null,
+            resume: null,
+            cart: null,
+            cartCount: 0
+        };
     },
     mutations,
     actions,

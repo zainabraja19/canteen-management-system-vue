@@ -30,7 +30,9 @@ router.post('/login', checkLoggedIn,
         try {
             // console.log("req", req.user)
             // res.cookie('userid', req.user.id, { maxAge: 3 * 24 * 60 * 60 * 1000 });
+
             req.user.expiresIn = req.session.cookie._expires
+            // console.log("cookie", req);
             res.status(200).json({ data: req.user });
         } catch (e) {
             res.status(400).json({ data: null, error: e })
@@ -43,6 +45,7 @@ router.get('/logout', checkAuthenticated, async (req, res) => {
     try {
         req.logout(function (err) {
             if (err) { return next(err); }
+            req.session.destroy()
             res.clearCookie('connect.sid');
             res.status(200).json({ data: "Logout successful!" })
         });

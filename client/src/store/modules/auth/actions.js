@@ -1,21 +1,10 @@
 let timer;
 
 export default {
-    async login(context, payload) {
-        return context.dispatch('auth', {
-            ...payload,
-            mode: 'login'
-        });
-    },
     async signup(context, payload) {
-        return context.dispatch('auth', {
-            ...payload,
-            mode: 'signup'
-        });
-    },
-    async auth(context, payload) {
-        const response = await fetch(`http://localhost:3000/auth/${payload.mode}`, {
+        const response = await fetch(`${process.env.VUE_APP_IP_ADDRESS}:3000/auth/signup`, {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -24,6 +13,27 @@ export default {
             })
         })
         const responseData = await response.json();
+
+        // Handle error
+        if (!responseData.data && responseData.error) {
+            context.dispatch('handleError', {
+                error: responseData.error,
+            });
+        }
+    },
+    async login(context, payload) {
+        const response = await fetch(`${process.env.VUE_APP_IP_ADDRESS}:3000/auth/login`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                ...payload
+            })
+        })
+        const responseData = await response.json();
+
         // Handle error
         if (!responseData.data && responseData.error) {
             context.dispatch('handleError', {
@@ -46,6 +56,16 @@ export default {
         context.commit('setUser', {
             user: responseData.data,
         });
+
+        // context.dispatch('employee/fetchProfilePicture', {
+        //     empId: responseData.data.empId,
+        // }, { root: true });
+
+        // context.dispatch('employee/fetchResume', {
+        //     empId: responseData.data.empId,
+        // }, { root: true });
+        // console.log("prof", responseData.data.profilePicture);
+
     },
     handleError(context, payload) {
         let errorMessage = 'An error occurred. Please try again!'
@@ -64,7 +84,9 @@ export default {
         }
         throw { error: errorMessage }
     },
-    logout(context) {
+    async logout(context) {
+        await fetch(`${process.env.VUE_APP_IP_ADDRESS}:3000/auth/logout`, { credentials: 'include' })
+
         localStorage.removeItem('userData');
         localStorage.removeItem('tokenExpiration');
 
@@ -73,12 +95,15 @@ export default {
         context.commit('setUser', {
             user: null
         });
+        // context.commit('employee/setProfilePicture', {
+        //     profilePicture: null,
+        // }, { root: true });
     },
     autoLogin(context) {
         const user = JSON.parse(localStorage.getItem('userData'));
         const tokenExpiration = localStorage.getItem('tokenExpiration');
 
-        if (+tokenExpiration < 0) {
+        if (!tokenExpiration || +tokenExpiration < 0) {
             return;
         }
 
@@ -90,6 +115,9 @@ export default {
             context.commit('setUser', {
                 user
             });
+            // context.commit('employee/setUserProfilePicture', {
+            //     profilePicture: user.profilePicture,
+            // }, { root: true });
         }
     },
     autoLogout(context) {

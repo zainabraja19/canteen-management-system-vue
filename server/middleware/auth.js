@@ -1,4 +1,5 @@
 const checkAuthenticated = (req, res, next) => {
+    console.log(req.headers.cookie, req.isAuthenticated());
     if (req.isAuthenticated()) {
         return next()
     }

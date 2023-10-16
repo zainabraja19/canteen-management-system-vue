@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
 const employeeSchema = mongoose.Schema({
@@ -45,6 +44,9 @@ const employeeSchema = mongoose.Schema({
         default: "employee",
     },
     profilePicture: {
+        type: Buffer,
+    },
+    resume: {
         type: Buffer
     }
 })
@@ -72,7 +74,7 @@ employeeSchema.statics.handleError = (error) => {
 // Find/verify user for login
 employeeSchema.statics.findByCredentials = async (email, password) => {
     // try {
-    const emp = await Employee.findOne({ email })
+    const emp = await Employee.findOne({ email }, { profilePicture: 0, resume: 0, __v: 0 })
     if (!emp) {
         throw new Error('Incorrect username or password. Please try again!')
     }
@@ -85,12 +87,18 @@ employeeSchema.statics.findByCredentials = async (email, password) => {
     return emp
 }
 
-// Hash the plain text password before saving
+// Hash the plain text password before saving and add default user profile
 employeeSchema.pre('save', async function (next) {
     const emp = this;
     const hash = await bcrypt.hash(emp.password, 10);
 
     this.password = hash;
+
+    const data = await fetch("https://cdn-icons-png.flaticon.com/512/3135/3135715.png");
+    const defaultPictureBuffer = Buffer.from(await data.arrayBuffer(), 'base64');
+
+    this.profilePicture = defaultPictureBuffer
+
     next();
 })
 
