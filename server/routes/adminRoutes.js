@@ -6,18 +6,33 @@ const { ObjectId } = require('mongodb');
 const Employee = require('../models/employee');
 const Order = require('../models/orders')
 
-// Remaining orders
-router.get('/orders', async (req, res) => {
-    const orders = await Order.find({})
-        .populate('employee', '-password')
-        .populate('items.item')
-        .exec()
-
-    res.status(200).json({ data: orders })
+// Show Menu with all items
+router.get('/menu', async (req, res) => {
+    try {
+        const menu = await Menu.find({})
+        res.status(200).json({ data: menu })
+    } catch (error) {
+        res.json(500).json({ data: null, error })
+    }
 })
 
-// Add dish
-router.post('/dish', async (req, res) => {
+// Remaining orders
+router.get('/orders', async (req, res) => {
+    try {
+        const orders = await Order.find({ completed: false })
+            .populate('employee', 'empId name phone')
+            .populate('items.item')
+            .exec()
+
+        res.status(200).json({ data: orders })
+    }
+    catch (err) {
+        res.status(400).json({ data: null, error: err })
+    }
+})
+
+// Add item
+router.post('/item', async (req, res) => {
     const menuItem = new Menu(req.body)
 
     try {
@@ -29,23 +44,23 @@ router.post('/dish', async (req, res) => {
     }
 })
 
-// Edit dish details
-router.patch('/dish/:id', async (req, res) => {
+// Edit item details
+router.patch('/item/:id', async (req, res) => {
     try {
         // const updatedMenu = await Menu.findByIdAndUpdate(id)
     } catch (err) { }
 })
 
-// Remove dish
-router.delete('/dish/:id', async (req, res) => {
+// Remove item
+router.delete('/item/:id', async (req, res) => {
     try {
         const item = await Menu.findByIdAndDelete(req.params.id);
 
         if (!emp) {
-            return res.status(404).json({ data: null, error: 'Dish not found' });
+            return res.status(404).json({ data: null, error: 'Item not found' });
         }
 
-        // update the document and remove dish
+        // update the document and remove item
 
         // await Cart.deleteMany({ "items.item": req.params.id });
         // await Order.deleteMany({ "items.item": req.params.id });

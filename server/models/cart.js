@@ -14,7 +14,7 @@ const cartSchema = mongoose.Schema({
                 ref: 'Menu',
                 required: true
             },
-            quantity: { type: Number, required: true },
+            quantity: { type: Number, required: true, max: 10 },
             price: { type: Number }
         },
     ],

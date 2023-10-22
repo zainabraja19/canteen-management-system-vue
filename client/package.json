@@ -17,6 +17,7 @@
     "filepond-plugin-file-validate-type": "^1.2.8",
     "filepond-plugin-image-preview": "^4.6.11",
     "filestack-js": "^3.27.0",
+    "moment": "^2.29.4",
     "pdf-lib": "^1.17.1",
     "pspdfkit": "^2023.4.5",
     "vue": "^3.3.4",

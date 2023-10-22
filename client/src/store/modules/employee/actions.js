@@ -1,4 +1,17 @@
 export default {
+    async fetchMenu(context) {
+        await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/menu`, {
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(res => res.json())
+            .then(response => {
+                context.commit('setMenu', { menu: response.data })
+            }).catch(err => {
+                console.log(err);
+            });
+    },
     async fetchProfilePicture(context, payload) {
         // const empId = this.$store.getters['auth/user'].empId
         return context.dispatch('fetchData', {
@@ -14,15 +27,22 @@ export default {
         });
     },
     async fetchData(context, payload) {
-        console.log(payload);
-        await fetch(`${process.env.VUE_APP_IP_ADDRESS}:3000/employee/${payload.empId}/${payload.type}`, { credentials: 'include' })
+        console.log("in");
+        await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/${payload.type}`, { credentials: 'include' })
             .then(res => res.json())
             .then(response => {
-                console.log(response.data);
                 if (!response.data && response.data.error) {
                     throw response.data.error
                 } else {
-                    context.commit(payload.type === 'resume' ? 'setResume' : 'setProfilePicture', { [payload.type]: response.data[payload.type] })
+                    const bufferData = response.data[payload.type]
+                    if (bufferData !== null) {
+                        const buffer = Buffer.from(bufferData.data, 'base64');
+
+                        const blob = new Blob([buffer], { type: payload.type === 'resume' ? 'application/pdf' : 'image/png' });
+                        const url = window.URL.createObjectURL(blob)
+
+                        context.commit(payload.type === 'resume' ? 'setResume' : 'setProfilePicture', { [payload.type]: url })
+                    }
                 }
             })
             .catch(err => {
@@ -30,10 +50,9 @@ export default {
             })
     },
     async cartCount(context, payload) {
-        await fetch(`${process.env.VUE_APP_IP_ADDRESS}:3000/employee/${payload.empId}/cartCount`, { credentials: 'include' })
+        await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/cartCount`, { credentials: 'include' })
             .then(res => res.json())
             .then(response => {
-                console.log(response.data);
                 if (!response.data && response.data.error) {
                     throw response.data.error
                 } else {
@@ -46,7 +65,7 @@ export default {
     },
     async fetchCart(context, payload) {
         await fetch(
-            `${process.env.VUE_APP_IP_ADDRESS}:3000/employee/${payload.empId}/cart`,
+            `${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/cart`,
             {
                 credentials: 'include',
                 headers: {
@@ -56,12 +75,11 @@ export default {
         )
             .then(res => res.json())
             .then(responseData => {
+                console.log(responseData);
                 context.commit('setCart', {
-                    cart: {
-                        items: responseData.data.items,
-                        totalItems: responseData.data.totalItems,
-                        cartTotal: responseData.data.cartTotal
-                    }
+                    items: responseData.data.items,
+                    // totalItems: responseData.data.totalItems,
+                    cartTotal: responseData.data.cartTotal
                 })
             })
             .catch(err => {
@@ -76,8 +94,9 @@ export default {
 
     },
     async addToCart(context, payload) {
+        console.log(payload.empId);
         await fetch(
-            `${process.env.VUE_APP_IP_ADDRESS}:3000/employee/${payload.empId}/cart`,
+            `${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/cart`,
             {
                 method: 'POST',
                 credentials: 'include',
@@ -86,20 +105,20 @@ export default {
                 },
                 body: JSON.stringify({ itemId: payload.itemId }),
             }
-        );
+        ).then(res => res.json()).then(res => console.log(res));
 
         // const responseData = await response.json();
-        context.dispatch('fetchCart', {
+        await context.dispatch('fetchCart', {
             ...payload
         });
 
-        context.dispatch('cartCount', {
+        await context.dispatch('cartCount', {
             ...payload
         });
     },
     async removeFromCart(context, payload) {
         await fetch(
-            `${process.env.VUE_APP_IP_ADDRESS}:3000/employee/${payload.empId}/cart`,
+            `${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/cart`,
             {
                 method: 'PATCH',
                 credentials: 'include',
@@ -111,22 +130,52 @@ export default {
         );
 
         // const responseData = await response.json();
-        context.dispatch('fetchCart', {
+        await context.dispatch('fetchCart', {
             ...payload
         });
 
-        context.dispatch('cartCount', {
+        await context.dispatch('cartCount', {
             ...payload
         });
     },
-    // async signup(context, payload) {
-    //     return context.dispatch('auth', {
-    //         ...payload,
-    //         mode: 'signup'
-    //     });
-    // },
-    // autoLogout(context) {
-    //     context.dispatch('logout');
-    //     context.commit('setAutoLogout');
-    // }
+    async placeOrder(context, payload) {
+        fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/order`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                items: payload.cartItems,
+                totalAmount: payload.cartTotal,
+            }),
+        });
+
+        await context.commit('setCart', {
+            items: [],
+            cartTotal: 0
+        })
+
+        await context.commit('setCartCount', {
+            count: 0
+        });
+    },
+    async fetchEmployeeOrders(context, payload) {
+        fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/order`, {
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(res => res.json())
+            .then(response => {
+                console.log(response);
+                context.commit('setEmpOrders', {
+                    orders: response.data
+                })
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }
 };

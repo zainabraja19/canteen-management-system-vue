@@ -11,13 +11,14 @@ const menuSchema = mongoose.Schema({
     },
     isAvailable: {
         type: Boolean,
+        default: true
     },
     image: {
         type: Buffer,
     },
     onlyForToday: {
         type: Boolean,
-        required: true
+        // required: true
     }
 })
 

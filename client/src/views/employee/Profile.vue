@@ -4,7 +4,11 @@
         <div class="row justify-content-around">
             <!-- <div class="col-12 d-flex justify-content-center align-items-center"> -->
             <div class="col-md-4 d-flex flex-column align-items-center">
-                <img :src="profilePicture" class="profilePicture img-fluid" alt="image-boiler" />
+                <!-- <img :src="profilePicture" class="profilePicturee img-fluid" alt="image-boiler" /> -->
+
+                <div :style="{ background: 'url(' + profilePicture + ')', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center', height: '150px', width: '150px', borderRadius: '50%' }"
+                    class="profilePicture">
+                </div>
 
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-secondary mt-4" data-bs-toggle="modal"
@@ -24,7 +28,7 @@
                                 <PdfUpload v-else />
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Save</button>
+                                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Done</button>
                             </div>
                         </div>
                     </div>
@@ -62,7 +66,7 @@
                                 <div class="col">
                                     <button type="button" class="btn btn-success w-100" data-bs-toggle="modal"
                                         @click="handleUploadType('resume')" data-bs-target="#upload">
-                                        Upload Resume</button>
+                                        {{ resume ? "Update" : "Upload" }} Resume</button>
                                 </div>
                             </div>
                             <div class="mt-4" v-if="resume">
@@ -79,71 +83,53 @@
 </template>
   
 <script>
-import ImageUpload from '../../components/fileupload/ImageUpload.vue';
-import PdfUpload from '../../components/fileupload/PdfUpload.vue';
-// import { pdf } from 'vue-pdf';
-// import VuePdfEmbed from 'vue-pdf-embed'
-// import PSPDFKit from 'pspdfkit';
+import ImageUpload from '../../components/ImageUpload.vue';
+import PdfUpload from '../../components/PdfUpload.vue';
 
 export default {
     data() {
         return {
             user: this.$store.getters['auth/user'],
-            profileUrl: null,
             uploadType: null,
-            // pdfBuffer: null,
-            pdfDataURL: null,
-            // profilePicture: null,
-            // resume: null
+            profilePicture: null,
+            resume: null
         };
     },
-    created() {
-        // this.profilePicture = this.$store.getters['employee/profilePicture']
-        // this.resume = this.$store.getters['employee/resume']
-        // console.log(this.profilePicture, this.resume);
+    async created() {
         this.$store.dispatch('employee/fetchProfilePicture', {
             empId: this.user.empId,
-        }, { root: true });
+        });
 
         this.$store.dispatch('employee/fetchResume', {
             empId: this.user.empId,
-        }, { root: true });
+        });
+
+        // this.profilePicture = await this.$store.getters['employee/profilePicture']
     },
     computed: {
-        // profile() {
-        //     if (this.user.profilePicture) {
-        //         return `data:image/png;base64,${this.$store.getters['employee/profilePicture']}`;
-        //     } else {
-        //         return this.$store.getters['employee/profilePicture']
-        //     }
-        // },
-        resume() {
+        computeResume() {
             console.log("computed");
             return this.$store.getters['employee/resume']
         },
-        profilePicture() {
-            var b = Buffer.from(this.$store.getters['employee/profilePicture']);
-            const blob = new Blob([b], { type: 'image/png' });
-            const url = window.URL.createObjectURL(blob)
-            return url
+        computeProfilePicture() {
+            return this.$store.getters['employee/profilePicture']
         }
     },
     watch: {
-
+        computeResume(val) {
+            this.resume = val
+        },
+        computeProfilePicture(val) {
+            this.profilePicture = val
+        }
     },
     methods: {
         handleUploadType(type) {
             this.uploadType = type
         },
         async downloadPdf() {
-            var b = Buffer.from(this.resume, 'base64');
-
-            // Create a Blob from the buffer
-            const blob = new Blob([b], { type: 'application/pdf' });
-
-            // Create a download link and trigger the download
             const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
+            link.href = this.resume;
             link.download = 'output.pdf';
             link.click();
         },
@@ -152,16 +138,25 @@ export default {
         ImageUpload,
         PdfUpload,
     },
+    // mounted() {
+    //     this.$watch('computeProfilePicture', async (val) => {
+    //         console.log(val);
+
+
+
+    //         this.profilePicture = val
+    //     })
+    // },
 };
 </script>
   
 <style scoped>
-.profilePicture {
-    width: 100%;
-    height: 100%;
-    max-width: 12rem;
-    max-height: 12rem;
+.profilePicturee {
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
-    /* object-fit: inherit */
+
+    object-fit: cover;
+    object-position: center right;
 }
 </style>

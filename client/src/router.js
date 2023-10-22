@@ -1,13 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import store from '@/store/index.js';
-import AuthSignup from './pages/auth/AuthSignup'
-import AuthLogin from './pages/auth/AuthLogin'
-import NotFound from './pages/NotFound'
-import AdminHome from './pages/admin/AdminHome'
-import Employee from './pages/employee/Employee';
-import EmployeeHome from './components/employee/EmployeeHome'
-import EmployeeProfile from './components/employee/EmployeeProfile'
-import EmployeeCart from './components/employee/EmployeeCart'
+import AuthSignup from './views/auth/Signup'
+import AuthLogin from './views/auth/Login'
+import NotFound from './views/NotFound'
+import Admin from './views/admin/Admin'
+import AdminItems from './views/admin/MenuItems'
+import AdminOrders from './views/admin/Orders'
+import AdminAddItem from './views/admin/AddItem'
+import Employee from './views/employee/Employee';
+import EmployeeHome from './views/employee/Menu'
+import EmployeeProfile from './views/employee/Profile'
+import EmployeeCart from './views/employee/Cart'
+import EmployeeOrders from './views/employee/EmployeeOrders'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -19,10 +23,17 @@ const router = createRouter({
             path: '/employee', component: Employee, meta: { requiresAuth: true, role: 'employee' }, children: [
                 { path: '', component: EmployeeHome },
                 { path: 'profile', component: EmployeeProfile },
-                { path: 'cart', component: EmployeeCart }
+                { path: 'cart', component: EmployeeCart },
+                { path: 'orders', component: EmployeeOrders }
             ]
         },
-        { path: '/admin', component: AdminHome, meta: { requiresAuth: true, role: 'admin' } },
+        {
+            path: '/admin', component: Admin, meta: { requiresAuth: true, role: 'admin' }, children: [
+                { path: '', component: AdminOrders },
+                { path: 'menu', component: AdminItems },
+                { path: 'addItem', component: AdminAddItem }
+            ]
+        },
         { path: '/:notFound(.*)', component: NotFound },
     ]
 })

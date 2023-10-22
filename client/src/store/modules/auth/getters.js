@@ -7,7 +7,7 @@ export default {
         return state.user ? state.user.role : null
     },
     isAuthenticated(state) {
-        return !!state.user;
+        return state.isAuthenticated;
     },
     didAutoLogout(state) {
         return state.didAutoLogout;

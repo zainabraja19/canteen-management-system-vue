@@ -5,7 +5,7 @@ const moment = require('moment');
 
 const orderSchema = mongoose.Schema({
     employee: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'Employee',
     },
@@ -46,12 +46,21 @@ const orderSchema = mongoose.Schema({
     },
 });
 
-// orderSchema.plugin(autoIncrement.plugin, {
-//     model: 'Order',
-//     field: 'orderId',
-//     startAt: 1,
-//     incrementBy: 1,
-// });
+orderSchema.statics.getNextOrderId = async function () {
+    const result = await this.findOne({}, {}, { sort: { orderId: -1 } });
+    const maxOrderId = result ? result.orderId : 0;
+    return maxOrderId + 1;
+};
+
+// Pre-save hook to set orderId before saving the document
+orderSchema.pre('save', async function (next) {
+    console.log(this);
+    if (!this.orderId) {
+        this.orderId = await this.constructor.getNextOrderId();
+    }
+    next();
+});
+
 
 const Order = mongoose.model('Order', orderSchema);
 

@@ -1,7 +1,8 @@
 <template>
     <div>
-        <file-pond name="test" ref="pond" label-idle="Browse or drop files here..." :allow-multiple="false" :server="server"
-            acceptedFileTypes="image/jpeg,image/png,image/jpg" maxFileSize="2MB" :labelFileProcessingError="uploadError" />
+        <file-pond name="test" ref="pond" label-idle="Browse or drop files here..." :allowDrop="true"
+            :itemInsertInterval="1" :allow-multiple="false" :server="server" acceptedFileTypes="application/pdf"
+            maxFileSize="5MB" :labelFileProcessingError="uploadError" />
     </div>
 </template>
 
@@ -14,14 +15,12 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css
 
 // Import image preview and file type validation plugins
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 
 
 // Create component
 const FilePond = vueFilePond(
     FilePondPluginFileValidateType,
-    FilePondPluginImagePreview,
     FilePondPluginFileValidateSize
 );
 
@@ -46,9 +45,9 @@ export default {
 
                     // Prepare form data
                     const formData = new FormData();
-                    formData.append('profilePicture', new Blob([image.file]), image.file.name);
+                    formData.append('resume', new Blob([image.file]), image.file.name);
 
-                    await fetch(`${process.env.VUE_APP_IP_ADDRESS}:3000/employee/${this.$store.getters['auth/user'].empId}/profilePicture`, {
+                    await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${this.$store.getters['auth/user'].empId}/resume`, {
                         method: 'POST',
                         credentials: 'include',
                         body: formData,
@@ -59,27 +58,9 @@ export default {
                     })
                         .then((response) => response.json())
                         .then(async (data) => {
-                            // passing the file id to FilePond
-                            //   console.log(data);
-                            //   const blob = new Blob([data.data.user.profilePicture.data], {
-                            //     type: data.data.contentType,
-                            //   });
-                            //   console.log(blob);
-                            //   const imageUrl = URL.createObjectURL(blob);
-                            //   this.imageUrl = imageUrl;
-                            //   const buffer = await data.data.user.profilePicture.arrayBuffer();
-                            // if (!data.data && data.error) {
-                            //     throw data.error
-                            // }
-                            // const base64Image = Buffer.from(
-                            //     data.data.user.profilePicture
-                            // ).toString('base64');
-                            // this.imageUrl = `data:image/png;base64,${base64Image}`;
-                            // this.$store.commit('employee/setUserProfilePicture', {
-                            //     profilePicture: base64Image
-                            // })
-                            // // this.imageUrl = data.data.user.profilePicture
-                            // // console.log(this.imageUrl);
+                            await this.$store.dispatch('employee/fetchResume', {
+                                empId: this.$store.getters['auth/user'].empId,
+                            });
                             load(data.file);
                         })
                         .catch((err) => {
@@ -106,6 +87,14 @@ export default {
     // },
     components: {
         FilePond,
+    },
+    methods: {
+        removeFile() {
+            const buttonElement = document.querySelector('button[type="button"]');
+            buttonElement.addEventListener("click", () => {
+                this.$refs.pond.removeFiles();
+            });
+        }
     },
 };
 </script>

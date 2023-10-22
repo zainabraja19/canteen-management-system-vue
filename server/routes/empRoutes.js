@@ -123,45 +123,11 @@ router.get('/menu', async (req, res) => {
     }
 })
 
-const totalItems = async (employee) => {
-    try {
-        let totalItems = 0
-        const cart = await Cart.findOne({ employee })
-        cart.items.map(item => {
-            console.log(item);
-            totalItems += item.quantity
-        })
-
-        return totalItems
-        // res.status(200).json({ data: { count: cart.totalItems } })
-    } catch (error) {
-        // res.status(500).json({ data: null, error })
-    }
-}
-
-const cartTotal = async (employee) => {
-    try {
-        let cartTotal = 0
-
-        const cart = await Cart.findOne({ employee })
-        cart.items.map(item => {
-            console.log(item);
-            cartTotal += (item.price * item.quantity)
-        })
-        return cartTotal
-        // res.status(200).json({ data: { count: cart.cartTotal } })
-    } catch (error) {
-        // res.status(500).json({ data: null, error })
-    }
-}
-
-
 // Add to cart
 router.post('/:empId/cart', async (req, res) => {
     try {
         const itemId = req.body.itemId
         const empId = req.params.empId
-
         // Check if item is available
         const menuItem = await Menu.findById(itemId)
 
@@ -185,7 +151,7 @@ router.post('/:empId/cart', async (req, res) => {
         if (itemInCart) {
             updatedCart = await Cart.findOneAndUpdate(
                 { "items.item": itemId },
-                { $inc: { "items.$.quantity": 1, totalItems: 1, cartTotal: menuItem.price } },
+                { $inc: { "items.$.quantity": 1, totalItems: 1, cartTotal: +menuItem.price } },
                 { new: true }
             )
         } else {
@@ -199,7 +165,7 @@ router.post('/:empId/cart', async (req, res) => {
                             price: menuItem.price,
                         },
                     },
-                    $inc: { totalItems: 1, cartTotal: menuItem.price },
+                    $inc: { totalItems: 1, cartTotal: +menuItem.price },
                 },
                 { new: true, upsert: true }
             );
@@ -243,18 +209,19 @@ router.patch('/:empId/cart', async (req, res) => {
         const deleteCount = req.body.deleteCount
 
         const menuItem = await Menu.findById(itemId)
-
+        console.log(menuItem.price * deleteCount);
         let updatedCart
-
-        if (deleteCount > 1) {
+        if (+deleteCount > 1) {
             updatedCart = await Cart.findOneAndUpdate(
                 { employee: empId },
                 {
                     $pull: { 'items': { 'item': itemId } }, // Remove the item from the items array
-                    $inc: { totalItems: -deleteCount, cartTotal: -(menuItem.price * deleteCount) },
+                    $inc: { totalItems: -deleteCount, cartTotal: -(menuItem.price * +deleteCount) },
                 },
                 { new: true, upsert: true }
             );
+            // console.log(updatedCart);
+
         } else {
             updatedCart = await Cart.findOneAndUpdate(
                 { employee: empId, 'items.item': itemId },
@@ -264,8 +231,21 @@ router.patch('/:empId/cart', async (req, res) => {
                 { new: true, upsert: true }
             );
 
-            console.log(updatedCart);
+            // console.log(updatedCart);
         }
+
+        if (updatedCart && updatedCart.items) {
+            const updatedItem = updatedCart.items.find(item => item.item.toString() === itemId.toString());
+
+            if (updatedItem && updatedItem.quantity === 0) {
+                // Remove the item from the array
+                updatedCart.items = updatedCart.items.filter(item => item.item.toString() !== itemId.toString());
+            }
+
+            // Save the updated cart
+            await updatedCart.save();
+        }
+
         res.status(200).json({ data: updatedCart });
     } catch (error) {
         res.status(400).json({ data: null, error })
@@ -276,7 +256,11 @@ router.patch('/:empId/cart', async (req, res) => {
 router.get('/:empId/cartCount', async (req, res) => {
     try {
         const cart = await Cart.findOne({ employee: req.params.empId })
-        res.status(200).json({ data: { count: cart.totalItems } })
+        if (!cart) {
+            res.status(200).json({ data: { count: 0 } })
+        } else {
+            res.status(200).json({ data: { count: cart.totalItems } })
+        }
     } catch (error) {
         res.status(500).json({ data: null, error })
     }
@@ -335,22 +319,28 @@ var transporter = nodemailer.createTransport({
 
 
 // Place order
-router.post("/order", async (req, res) => {
+router.post("/:empId/order", async (req, res) => {
+    console.log(req);
     try {
-        // console.log(req.body);
-        let order = new Order(req.body)
-        console.log(order);
 
-        // await order.save()
-
-
-        order.populate('items.item')
         // console.log(order);
         // Configure receiver's mail
-        const employee = await Employee.findOne({ empId: req.body.employee })
+        const employee = await Employee.findOne({ empId: req.params.empId })
+
+        // console.log(req.body);
+        let order = new Order({ employee: employee._id, ...req.body })
+        console.log(order.items);
+
+        await order.save()
+        await order.populate('items.item')
+
         order.items.map(async item => {
+            console.log("here");
+            console.log(item);
             console.log(item.item);
         })
+
+        // order.save()
         const mailOptions = {
             from: process.env.ADMIN_MAIL,
             to: process.env.ADMIN_MAIL,
@@ -381,7 +371,6 @@ router.post("/order", async (req, res) => {
                         <div>Ordered By:
                             <div>Employee Id: ${employee.empId}</div>
                             <div>Empoyee Name: ${employee.name}</div>
-                            <div>Email: ${employee.email}</div>
                             <div>Phone number: ${employee.phone}</div>
                         </div>
                     </div>
@@ -419,18 +408,22 @@ router.post("/order", async (req, res) => {
             }
         });
 
+        await Cart.findOneAndDelete({ employee: req.params.empId })
+
         res.status(200).json({ data: order })
     } catch (error) {
-        res.status(400).json({ data: null });
+        res.status(400).json({ data: null, error });
     }
 })
 
 // Get order detail
-router.get('/order', async (req, res) => {
+router.get('/:empId/order', async (req, res) => {
     try {
-        const orders = await Order.findOne({ employee: req.user.empId })
+        const employee = await Employee.findOne({ empId: req.params.empId })
+
+        const orders = await Order.find({ employee: employee._id })
+            .populate('employee', 'empId name')
             .populate("items.item")
-            .exec();
 
         res.status(200).json({ data: orders })
     } catch (err) {

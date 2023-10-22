@@ -8,6 +8,7 @@ export default ({
         return {
             user: null,
             role: null,
+            isAuthenticated: false,
             didAutoLogout: false
         };
     },

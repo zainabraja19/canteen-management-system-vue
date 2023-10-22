@@ -6,10 +6,15 @@ export default ({
     namespaced: true,
     state() {
         return {
+            menu: null,
             profilePicture: null,
             resume: null,
             cart: null,
-            cartCount: 0
+            cartItems: [],
+            cartTotal: 0,
+            cartCount: 0,
+            orderPlaced: false,
+            empOrders: null
         };
     },
     mutations,

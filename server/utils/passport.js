@@ -3,6 +3,33 @@ const localStrategy = require('passport-local').Strategy;
 const Employee = require('../models/employee')
 
 passport.use(
+    'signup',
+    new localStrategy(
+        {
+            usernameField: 'email',
+            passwordField: 'password',
+            passReqToCallback: true
+        },
+        async (req, email, password, done) => {
+            try {
+                console.log(req.body);
+                const employee = new Employee(req.body)
+                await employee.save()
+
+                const emp = { ...employee.toObject() };
+
+                delete emp.password;
+                delete emp.profilePicture
+                delete emp.resume
+                delete emp.__v
+
+                return done(null, emp, { message: 'Registration Successfull' });
+            } catch (error) {
+                return done(error);
+            }
+        }))
+
+passport.use(
     'login',
     new localStrategy(
         {
@@ -24,6 +51,7 @@ passport.use(
 
                 return done(null, emp, { message: 'Logged in Successfully' });
             } catch (error) {
+                console.log(error);
                 return done(error);
             }
         }

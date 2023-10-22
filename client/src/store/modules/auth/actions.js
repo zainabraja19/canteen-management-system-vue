@@ -2,27 +2,38 @@ let timer;
 
 export default {
     async signup(context, payload) {
-        const response = await fetch(`${process.env.VUE_APP_IP_ADDRESS}:3000/auth/signup`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                ...payload
-            })
-        })
-        const responseData = await response.json();
+        return context.dispatch('auth', {
+            ...payload,
+            type: 'signup'
+        });
 
-        // Handle error
-        if (!responseData.data && responseData.error) {
-            context.dispatch('handleError', {
-                error: responseData.error,
-            });
-        }
+        // const response = await fetch(`${process.env.VUE_APP_IP_ADDRESS}/auth/signup`, {
+        //     method: 'POST',
+        //     credentials: 'include',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({
+        //         ...payload
+        //     })
+        // })
+        // const responseData = await response.json();
+
+        // // Handle error
+        // if (!responseData.data && responseData.error) {
+        //     context.dispatch('handleError', {
+        //         error: responseData.error,
+        //     });
+        // }
     },
     async login(context, payload) {
-        const response = await fetch(`${process.env.VUE_APP_IP_ADDRESS}:3000/auth/login`, {
+        return context.dispatch('auth', {
+            ...payload,
+            type: 'login'
+        });
+    },
+    async auth(context, payload) {
+        const response = await fetch(`${process.env.VUE_APP_IP_ADDRESS}/auth/${payload.type}`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -41,7 +52,8 @@ export default {
             });
         }
         // Auto logout when user session expires
-        const expirationDuration = new Date(responseData.data.expiresIn).getTime() - new Date().getTime() - 100
+        const expirationDuration = new Date(responseData.data.expiresIn).getTime() - Date.now()
+        console.log(expirationDuration);
         timer = setTimeout(function () {
             context.dispatch('autoLogout');
         }, expirationDuration);
@@ -51,21 +63,11 @@ export default {
         } else {
             localStorage.setItem('userData', JSON.stringify(responseData.data));
         }
-        localStorage.setItem('tokenExpiration', expirationDuration);
+        localStorage.setItem('tokenExpiration', new Date(responseData.data.expiresIn).getTime());
 
         context.commit('setUser', {
             user: responseData.data,
         });
-
-        // context.dispatch('employee/fetchProfilePicture', {
-        //     empId: responseData.data.empId,
-        // }, { root: true });
-
-        // context.dispatch('employee/fetchResume', {
-        //     empId: responseData.data.empId,
-        // }, { root: true });
-        // console.log("prof", responseData.data.profilePicture);
-
     },
     handleError(context, payload) {
         let errorMessage = 'An error occurred. Please try again!'
@@ -85,7 +87,7 @@ export default {
         throw { error: errorMessage }
     },
     async logout(context) {
-        await fetch(`${process.env.VUE_APP_IP_ADDRESS}:3000/auth/logout`, { credentials: 'include' })
+        await fetch(`${process.env.VUE_APP_IP_ADDRESS}/auth/logout`, { credentials: 'include' })
 
         localStorage.removeItem('userData');
         localStorage.removeItem('tokenExpiration');
@@ -99,29 +101,36 @@ export default {
         //     profilePicture: null,
         // }, { root: true });
     },
-    autoLogin(context) {
+    async autoLogin(context) {
         const user = JSON.parse(localStorage.getItem('userData'));
         const tokenExpiration = localStorage.getItem('tokenExpiration');
 
         if (!tokenExpiration || +tokenExpiration < 0) {
-            return;
+            // await context.dispatch('autoLogout');
+            return
         }
 
+        const expirationDuration = new Date(+tokenExpiration).getTime() - new Date().getTime()
+
+        console.log(new Date(+tokenExpiration).getTime(), Date.now(), new Date(+tokenExpiration).getTime() - new Date().getTime());
+
         timer = setTimeout(function () {
+            console.log(expirationDuration);
+
             context.dispatch('autoLogout');
-        }, +tokenExpiration);
+        }, expirationDuration);
 
         if (user) {
             context.commit('setUser', {
-                user
+                user,
             });
             // context.commit('employee/setUserProfilePicture', {
             //     profilePicture: user.profilePicture,
             // }, { root: true });
         }
     },
-    autoLogout(context) {
-        context.dispatch('logout');
+    async autoLogout(context) {
+        await context.dispatch('logout');
         context.commit('setAutoLogout');
     }
 };

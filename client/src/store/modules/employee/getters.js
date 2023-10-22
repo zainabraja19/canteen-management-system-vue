@@ -1,6 +1,8 @@
 export default {
+    menu(state) {
+        return state.menu
+    },
     profilePicture(state) {
-        console.log(state);
         return state.profilePicture
     },
     resume(state) {
@@ -9,7 +11,17 @@ export default {
     cartCount(state) {
         return state.cartCount
     },
-    cart(state) {
-        return state.cart
+    cartTotal(state) {
+        return state.cartTotal
+    },
+    cartItems(state) {
+        return state.cartItems
+    },
+    orderPlaced(state) {
+        console.log("orrrrrrrrrrrrr", state);
+        return state.orderPlaced
+    },
+    employeeOrders(state) {
+        return state.empOrders
     }
 }

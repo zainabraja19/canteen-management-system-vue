@@ -18,7 +18,7 @@ export function Options(type, pond) {
                 // for (const pair of formData.entries()) {
                 //     console.log(pair[0] + ', ' + pair[1]);
                 // }
-                await fetch(`${process.env.VUE_APP_IP_ADDRESS}:3000/employee/A624/${type}`, {
+                await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/A624/${type}`, {
                     method: 'POST',
                     credentials: 'include',
                     body: formData,
