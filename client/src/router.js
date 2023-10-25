@@ -51,10 +51,11 @@ router.beforeEach(function (to, _, next) {
             next('/');
             // return;
         }
-        else {
-            next()
-        }
+        // else {
+        //     next()
+        // }
     }
+    next()
 });
 
 
