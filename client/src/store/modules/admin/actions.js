@@ -12,8 +12,9 @@ export default {
                 console.log(err);
             });
     },
-    async fetchOrders(context) {
-        await fetch(`${process.env.VUE_APP_IP_ADDRESS}/admin/orders`, {
+    async fetchOrders(context, payload) {
+        console.log("in");
+        await fetch(`${process.env.VUE_APP_IP_ADDRESS}/admin/orders?page=${payload.page}`, {
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
@@ -23,7 +24,8 @@ export default {
             .then(response => {
                 console.log(response.data);
                 context.commit('setOrders', {
-                    orders: response.data
+                    orders: response.data.orders,
+                    totalOrders: response.data.totalOrders
                 })
             })
             .catch(err => {

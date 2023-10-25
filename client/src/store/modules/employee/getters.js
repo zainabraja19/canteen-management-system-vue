@@ -18,10 +18,12 @@ export default {
         return state.cartItems
     },
     orderPlaced(state) {
-        console.log("orrrrrrrrrrrrr", state);
         return state.orderPlaced
     },
     employeeOrders(state) {
         return state.empOrders
+    },
+    totalOrders(state) {
+        return state.totalOrders
     }
 }

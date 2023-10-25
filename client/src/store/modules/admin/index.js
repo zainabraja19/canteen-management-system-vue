@@ -8,6 +8,7 @@ export default ({
         return {
             orders: null,
             menu: null,
+            totalOrders: 0
         };
     },
     mutations,

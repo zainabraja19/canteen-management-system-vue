@@ -418,14 +418,20 @@ router.post("/:empId/order", async (req, res) => {
 
 // Get order detail
 router.get('/:empId/order', async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    // const perPage = parseInt(req.query.perPage) || 10;
+    const perPage = 10
+    const skip = (page - 1) * perPage;
+
     try {
         const employee = await Employee.findOne({ empId: req.params.empId })
 
-        const orders = await Order.find({ employee: employee._id })
+        const totalOrders = await Order.find({ employee: employee._id }).count()
+        const orders = await Order.find({ employee: employee._id }).sort({ completed: 1, orderDate: -1 }).skip(skip).limit(perPage)
             .populate('employee', 'empId name')
             .populate("items.item")
 
-        res.status(200).json({ data: orders })
+        res.status(200).json({ data: { orders, totalOrders } })
     } catch (err) {
         res.status(500).json({ data: null, error: err })
     }

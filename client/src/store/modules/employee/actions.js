@@ -161,7 +161,7 @@ export default {
         });
     },
     async fetchEmployeeOrders(context, payload) {
-        fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/order`, {
+        fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/order?page=${payload.page}`, {
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
@@ -171,7 +171,8 @@ export default {
             .then(response => {
                 console.log(response);
                 context.commit('setEmpOrders', {
-                    orders: response.data
+                    orders: response.data.orders,
+                    totalOrders: response.data.totalOrders
                 })
             })
             .catch(err => {

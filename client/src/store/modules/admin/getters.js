@@ -4,5 +4,8 @@ export default {
     },
     orders(state) {
         return state.orders
+    },
+    totalOrders(state) {
+        return state.totalOrders
     }
 }

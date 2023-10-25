@@ -23,5 +23,6 @@ export default {
     },
     setEmpOrders(state, payload) {
         state.empOrders = payload.orders
+        state.totalOrders = payload.totalOrders
     }
 }

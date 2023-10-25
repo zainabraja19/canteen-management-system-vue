@@ -39,7 +39,6 @@ const router = createRouter({
 })
 
 router.beforeEach(function (to, _, next) {
-
     if (to.meta.requiresUnauth) {
         if (store.getters['auth/isAuthenticated']) {
             next(`/${store.getters['auth/userRole']}`);
@@ -52,9 +51,10 @@ router.beforeEach(function (to, _, next) {
             next('/');
             // return;
         }
+        else {
+            next()
+        }
     }
-
-    next();
 });
 
 

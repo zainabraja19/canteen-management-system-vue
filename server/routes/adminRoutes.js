@@ -18,13 +18,19 @@ router.get('/menu', async (req, res) => {
 
 // Remaining orders
 router.get('/orders', async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    // const perPage = parseInt(req.query.perPage) || 10;
+    const perPage = 10
+    const skip = (page - 1) * perPage;
+
     try {
-        const orders = await Order.find({ completed: false })
+        const totalOrders = await Order.find({ completed: false }).count()
+        const orders = await Order.find({ completed: false }).skip(skip).limit(perPage)
             .populate('employee', 'empId name phone')
             .populate('items.item')
             .exec()
 
-        res.status(200).json({ data: orders })
+        res.status(200).json({ data: { orders, totalOrders } })
     }
     catch (err) {
         res.status(400).json({ data: null, error: err })
