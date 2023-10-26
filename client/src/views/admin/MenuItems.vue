@@ -17,16 +17,12 @@
           <td>{{ item.itemName }}</td>
           <td>{{ formatPrice(+item.price) }}</td>
           <td>{{ item.isAvailable ? 'Yes' : 'No' }}</td>
-          <td>
-            <MenuModalEdit></MenuModalEdit>
+          <td @click="setSelectedItem(item)">
+            <MenuModalEdit :item="selectedItem"></MenuModalEdit>
+
           </td>
           <td>
-            <i
-              data-bs-toggle="tooltip"
-              data-bs-placement="top"
-              title="Remove Item"
-              class="bi bi-trash3 text-danger"
-            ></i>
+            <i data-bs-toggle="tooltip" data-bs-placement="top" title="Remove Item" class="bi bi-trash3 text-danger"></i>
           </td>
         </tr>
       </tbody>
@@ -44,6 +40,8 @@ export default {
     return {
       items: null,
       price: null,
+      selectedItem: '',
+      isEdit: false
     };
   },
   async mounted() {
@@ -63,6 +61,10 @@ export default {
         itemId: id,
       });
     },
+    setSelectedItem(item) {
+      this.isEdit = true
+      this.selectedItem = item
+    }
   },
   components: {
     MenuModalEdit,
