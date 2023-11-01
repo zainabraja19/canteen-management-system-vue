@@ -1,8 +1,10 @@
 <template>
     <div>
         <file-pond name="test" ref="pond" label-idle="Browse or drop files here..." :allowDrop="true"
-            :itemInsertInterval="1" :allow-multiple="false" :server="server" acceptedFileTypes="application/pdf"
-            maxFileSize="5MB" :labelFileProcessingError="uploadError" />
+            :itemInsertInterval="1" :allow-multiple="false" :server="server"
+            acceptedFileTypes="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            :instant-upload="false" iconRetry="false" maxFileSize="5MB" :labelFileProcessingError="uploadError"
+            fileValidateTypeLabelExpectedTypes="Expects .pdf/.docx files" />
     </div>
 </template>
 
@@ -41,11 +43,11 @@ export default {
                 process: async (fieldName, file, metadata, load, error, progress) => {
                     const pond = this.$refs.pond;
 
-                    const image = pond.getFile();
+                    const resume = pond.getFile();
 
                     // Prepare form data
                     const formData = new FormData();
-                    formData.append('resume', new Blob([image.file]), image.file.name);
+                    formData.append('resume', new Blob([resume.file]), resume.file.name);
 
                     await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${this.$store.getters['auth/user'].empId}/resume`, {
                         method: 'POST',
@@ -69,6 +71,9 @@ export default {
                             console.log(err);
                         });
                 },
+                revert: (src, load) => {
+                    load();
+                }
             },
 
         };

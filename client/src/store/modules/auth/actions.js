@@ -53,7 +53,6 @@ export default {
         }
         // Auto logout when user session expires
         const expirationDuration = new Date(responseData.data.expiresIn).getTime() - Date.now()
-        console.log(expirationDuration);
         timer = setTimeout(function () {
             context.dispatch('autoLogout');
         }, expirationDuration);
@@ -80,7 +79,6 @@ export default {
                     errors[error] = `${error} is required!`
                 }
             })
-            console.log(payload.error);
             throw { error: errors }
 
         }
@@ -112,11 +110,7 @@ export default {
 
         const expirationDuration = new Date(+tokenExpiration).getTime() - new Date().getTime()
 
-        console.log(new Date(+tokenExpiration).getTime(), Date.now(), new Date(+tokenExpiration).getTime() - new Date().getTime());
-
         timer = setTimeout(function () {
-            console.log(expirationDuration);
-
             context.dispatch('autoLogout');
         }, expirationDuration);
 

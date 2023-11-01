@@ -5,10 +5,8 @@
   <!-- <div data-bs-toggle="modal" data-bs-target="#editItemModal">
     <i data-bs-toggle="tooltip" data-bs-placement="top" title="Edit details" class="bi bi-pencil-square text-primary"></i>
   </div> -->
-  <div data-bs-toggle="modal" data-bs-target="#editItemModal">
-    <i data-bs-toggle="tooltip" data-bs-placement="top" title="Edit details" class="bi bi-pencil-square text-primary"></i>
-  </div>
-  <div class="modal fade" id="editItemModal" tabindex="-1">
+
+  <div class="modal fade" ref="my-modal" id="editItemModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -30,16 +28,12 @@
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="isAvailable" id="isAvailable1" v-model="isAvailable"
                   value="true" />
-                <label class="form-check-label" for="isAvailable1">
-                  Yes
-                </label>
+                <label class="form-check-label" for="isAvailable1"> Yes </label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="isAvailable" id="isAvailable2" v-model="isAvailable"
                   value="false" />
-                <label class="form-check-label" for="isAvailable2">
-                  No
-                </label>
+                <label class="form-check-label" for="isAvailable2"> No </label>
               </div>
             </div>
           </form>
@@ -48,7 +42,9 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             Close
           </button>
-          <button type="button" class="btn btn-primary">Save changes</button>
+          <button type="button" class="btn btn-primary" @click="handleEdit(item._id)">
+            Save changes
+          </button>
         </div>
       </div>
     </div>
@@ -59,26 +55,85 @@
 </template>
 
 <script>
+import { Modal } from 'bootstrap';
 export default {
   props: ['item'],
   data() {
     return {
-
-    }
+      itemName: '',
+      price: 0,
+      isAvailable: false,
+    };
   },
-  computed: {
-    itemName() {
-      return this.item.itemName
-    },
-    price() {
-      return this.item.price
-    },
-    isAvailable() { return this.item.isAvailable }
+  created() {
+    // Populate the data properties from the prop
+    this.itemName = this.item.itemName;
+    this.price = this.item.price || 0;
+    this.isAvailable = this.item.isAvailable || false;
+    new Modal(document.getElementById('editItemModal'));
   },
   mounted() {
-    console.log(this.item);
+    console.log(this.$refs);
+  },
+  // computed: {
+  //   itemName: {
+  //     get() {
+  //       return this.item.itemName;
+  //     },
+  //     set(val) {
+  //       console.log(val);
+  //       return val;
+  //     },
+  //   },
+  //   price: {
+  //     get() {
+  //       return this.item.price;
+  //     },
+  //     set(val) {
+  //       console.log(val);
+  //       return val;
+  //     },
+  //   },
+  //   isAvailable: {
+  //     get() {
+  //       return this.item.isAvailable;
+  //     },
+  //     set(val) {
+  //       console.log(val);
+  //       return val;
+  //     },
+  //   },
+  // },
+  // mounted() {
+  //   console.log(this.item);
+  // },
+  methods: {
+    handleEdit(id) {
+      console.log(id);
+      const newData = {};
+      console.log(
+        this.item.itemName !== this.itemName,
+        this.item.itemName,
+        this.itemName
+      );
+      if (this.item.itemName !== this.itemName) {
+        console.log(this.itemName);
+        newData['itemName'] = this.itemName;
+      }
+      if (this.item.price !== this.price) {
+        newData['price'] = this.price;
+      }
+      if (this.item.availability !== this.availability) {
+        newData['availability'] = this.availability;
+      }
+      console.log(newData);
+      // this.$store.dispatch('admin/editItem', {
+      //   id,
+      //   newData,
+      // });
+    },
+  },
 
-  }
   //   data() {
   //     return {
   //       email: '',

@@ -1,3 +1,6 @@
+// import { FileType } from 'file-type';
+// var mime = require('mime-types')
+
 export default {
     async fetchMenu(context) {
         await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/menu`, {
@@ -27,18 +30,18 @@ export default {
         });
     },
     async fetchData(context, payload) {
-        console.log("in");
         await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/${payload.type}`, { credentials: 'include' })
             .then(res => res.json())
-            .then(response => {
+            .then(async response => {
                 if (!response.data && response.data.error) {
                     throw response.data.error
                 } else {
-                    const bufferData = response.data[payload.type]
+                    const bufferData = response.data[payload.type].buffer
                     if (bufferData !== null) {
                         const buffer = Buffer.from(bufferData.data, 'base64');
 
-                        const blob = new Blob([buffer], { type: payload.type === 'resume' ? 'application/pdf' : 'image/png' });
+                        const blob = new Blob([buffer], { type: response.data[payload.type].mimeType }
+                        );
                         const url = window.URL.createObjectURL(blob)
 
                         context.commit(payload.type === 'resume' ? 'setResume' : 'setProfilePicture', { [payload.type]: url })
@@ -75,7 +78,6 @@ export default {
         )
             .then(res => res.json())
             .then(responseData => {
-                console.log(responseData);
                 context.commit('setCart', {
                     items: responseData.data.items,
                     // totalItems: responseData.data.totalItems,
@@ -94,7 +96,6 @@ export default {
 
     },
     async addToCart(context, payload) {
-        console.log(payload.empId);
         await fetch(
             `${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/cart`,
             {
@@ -169,7 +170,6 @@ export default {
         })
             .then(res => res.json())
             .then(response => {
-                console.log(response);
                 context.commit('setEmpOrders', {
                     orders: response.data.orders,
                     totalOrders: response.data.totalOrders

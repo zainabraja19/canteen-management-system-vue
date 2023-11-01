@@ -29,8 +29,7 @@ app.use(session({
     cookie: {
         maxAge: 3 * 60 * 60 * 1000,
         secure: false,
-        httpOnly: false
-        // sameSite: 'None',
+        httpOnly: false,
     } // 1 hour
 }))
 
@@ -62,6 +61,6 @@ app.use((err, req, res, next) => {
     return res.status(500).json({ data: null, error: 'Internal Server Error' });
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`Listening on port ${port}!`)
 })

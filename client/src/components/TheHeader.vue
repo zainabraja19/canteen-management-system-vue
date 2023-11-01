@@ -2,15 +2,9 @@
   <div class="shadow bg-body rounded sticky-top mb-4">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
-        <button
-          class="navbar-toggler ms-auto"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarTogglerDemo01"
-          aria-controls="navbarTogglerDemo01"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
+          data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false"
+          aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
@@ -20,39 +14,26 @@
                 <router-link class="nav-link" to="/">Home</router-link>
               </li>
               <li class="nav-item" v-if="role === 'employee'">
-                <router-link class="nav-link" to="/employee/orders"
-                  >Orders</router-link
-                >
+                <router-link class="nav-link" to="/user/orders">Orders</router-link>
               </li>
               <li class="nav-item" v-if="role === 'admin'">
-                <router-link class="nav-link" to="/admin/menu"
-                  >Menu</router-link
-                >
+                <router-link class="nav-link" to="/admin/menu">Menu</router-link>
               </li>
             </div>
-            <div
-              class="d-flex flex-column align-items-lg-center flex-lg-row ms-lg-auto"
-            >
-              <li
-                class="text-light navbar-nav ms-lg-auto me-3"
-                v-if="role === 'employee'"
-              >
-                <router-link class="nav-link" to="/employee/cart">
+            <div class="d-flex flex-column align-items-lg-center flex-lg-row ms-lg-auto">
+              <li class="text-light navbar-nav ms-lg-auto me-3" v-if="role === 'employee'">
+                <router-link class="nav-link" to="/user/cart">
                   <button type="button" class="btn btn-light position-relative">
                     <i class="bi bi-cart-dash me-1"></i>
                     Cart
                     <span
-                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill p-1 bg-danger rounded-circle"
-                    >
+                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill p-1 bg-danger rounded-circle">
                       {{ cartCount }}
                     </span>
                   </button>
                 </router-link>
               </li>
-              <li
-                class="text-light navbar-nav ms-lg-auto me-3"
-                v-if="role === 'admin'"
-              >
+              <li class="text-light navbar-nav ms-lg-auto me-3" v-if="role === 'admin'">
                 <router-link class="nav-link" to="/admin/addItem">
                   <button type="button" class="btn btn-light position-relative">
                     Add New Item
@@ -63,46 +44,25 @@
                 <a class="nav-link" @click="handleLogout()" style="cursor: pointer">Logout</a>
               </li> -->
               <li class="nav-item dropdown" v-if="role === 'employee'">
-                <a
-                  class="nav-link"
-                  href="#"
-                  id="navbarDarkDropdownMenuLink"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
+                <a class="nav-link" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown"
+                  aria-expanded="false">
                   <img class="nav-profile" :src="profilePicture" />
                 </a>
-                <ul
-                  class="dropdown-menu dropdown-menu-dark dropdown-menu-lg-end"
-                  aria-labelledby="navbarDarkDropdownMenuLink"
-                >
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-lg-end"
+                  aria-labelledby="navbarDarkDropdownMenuLink">
                   <!-- <li><a class="dropdown-item" href="#">Action</a></li>
                   <li><a class="dropdown-item" href="#">Another action</a></li>
                   <li><a class="dropdown-item" href="#">Something else here</a></li> -->
                   <li>
-                    <router-link class="dropdown-item" to="/employee/profile"
-                      >Profile</router-link
-                    >
+                    <router-link class="dropdown-item" to="/user/profile">Profile</router-link>
                   </li>
                   <li>
-                    <a
-                      class="dropdown-item"
-                      @click="handleLogout()"
-                      style="cursor: pointer"
-                      >Logout</a
-                    >
+                    <a class="dropdown-item" @click="handleLogout()" style="cursor: pointer">Logout</a>
                   </li>
                 </ul>
               </li>
               <li>
-                <a
-                  class="nav-link"
-                  v-if="role === 'admin'"
-                  @click="handleLogout()"
-                  style="cursor: pointer"
-                  >Logout</a
-                >
+                <a class="nav-link" v-if="role === 'admin'" @click="handleLogout()" style="cursor: pointer">Logout</a>
               </li>
             </div>
           </ul>

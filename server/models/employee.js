@@ -44,10 +44,14 @@ const employeeSchema = mongoose.Schema({
         default: "employee",
     },
     profilePicture: {
-        type: Buffer,
+        buffer: { type: Buffer },
+        extension: { type: String },
+        mimeType: { type: String }
     },
     resume: {
-        type: Buffer
+        buffer: { type: Buffer },
+        extension: { type: String },
+        mimeType: { type: String }
     }
 })
 
@@ -97,7 +101,9 @@ employeeSchema.pre('save', async function (next) {
     const data = await fetch("https://cdn-icons-png.flaticon.com/512/3135/3135715.png");
     const defaultPictureBuffer = Buffer.from(await data.arrayBuffer(), 'base64');
 
-    this.profilePicture = defaultPictureBuffer
+    this.profilePicture.buffer = defaultPictureBuffer
+    this.profilePicture.extension = 'png'
+    this.profilePicture.mimeType = 'image/png'
 
     next();
 })

@@ -101,9 +101,9 @@
                     </button>
                   </div>
                 </div>
-                <div class="mt-4" v-if="resume">
+                <div class="mt-2" v-if="resume">
                   <button type="button" class="btn btn-dark w-100" @click="downloadPdf">
-                    Download PDF
+                    Download Resume
                   </button>
                 </div>
               </form>
@@ -165,7 +165,10 @@ export default {
     async downloadPdf() {
       const link = document.createElement('a');
       link.href = this.resume;
-      link.download = 'output.pdf';
+      console.log(link);
+      const fileExtension = this.resume.type;
+      console.log(fileExtension);
+      link.download = 'output';
       link.click();
     },
   },
@@ -212,8 +215,8 @@ h3 {
 .camera-icon {
   background-color: rgb(193, 193, 193);
   border: 3px solid #e3e3e3;
-  margin-right: 0.4rem;
-  margin-bottom: 0.4rem;
+  margin-right: 0.2rem;
+  margin-bottom: 0.2rem;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -1,8 +1,9 @@
 <template>
-    <div>
+    <div class="filepond-container">
         <file-pond name="test" ref="pond" label-idle="Browse or drop files here..." :allow-multiple="false"
-            :itemInsertInterval="1" :server="server" :instant-upload="false" iconRetry="false"
-            acceptedFileTypes="image/jpeg,image/png,image/jpg" maxFileSize="2MB" :labelFileProcessingError="uploadError" />
+            :allowDrop="true" :checkValidity="true" :server="server" class-name="my-pond" :instant-upload="false"
+            :itemInsertInterval="itemInsertInterval" accepted-file-types="image/jpeg, image/png" maxFileSize="2MB"
+            :labelFileProcessingError="uploadError" @init="handleFilePondInit" />
     </div>
 </template>
 
@@ -10,14 +11,12 @@
 import vueFilePond from 'vue-filepond';
 import 'filepond/dist/filepond.min.css';
 
-// Import image preview plugin styles
-import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
-
 // Import image preview and file type validation plugins
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 
 // Create component
 const FilePond = vueFilePond(
@@ -38,6 +37,7 @@ export default {
         return {
             imageUrl: '',
             uploadError: '',
+            itemInsertInterval: 0,
             server: {
                 // chunkSize: '1000000',
                 process: async (fieldName, file, metadata, load, error, progress) => {
@@ -72,7 +72,6 @@ export default {
                         });
                 },
                 revert: (src, load) => {
-                    console.log("remove", src);
                     load();
                 }
             },
@@ -91,14 +90,32 @@ export default {
     //     // Set options using v-bind:options in the template
     //     setOptions(this.pondOptions);
     // },
+    methods: {
+        handleFilePondInit: function () {
+            console.log('FilePond has initialized');
+        },
+    },
     components: {
         FilePond,
-    },
-};
+    }
+}
 </script>
 
 <style>
+.filepond--root,
 .filepond--root .filepond--drop-label {
     height: 200px;
 }
+
+.filepond--panel-root,
+.filepond--data {
+    height: 200px;
+}
+
+
+/* 
+.filepond--panel-root {
+    background-color: transparent;
+    border: 2px solid #2c3340;
+} */
 </style>

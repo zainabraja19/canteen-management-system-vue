@@ -4,9 +4,7 @@ export default {
         state.menu = payload.menu
     },
     setProfilePicture(state, payload) {
-        // console.log(state, payload);
         state.profilePicture = payload.profilePicture;
-        console.log(state);
     },
     setResume(state, payload) {
         state.resume = payload.resume

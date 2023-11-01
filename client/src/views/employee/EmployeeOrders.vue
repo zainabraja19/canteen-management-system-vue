@@ -2,7 +2,7 @@
   <div>
     <h2>Orders</h2>
     <hr />
-    <div v-if="orders" class="table-responsive mt-4">
+    <div v-if="totalOrders > 0" class="table-responsive mt-4">
       <table class="table text-center">
         <thead>
           <tr>
@@ -39,7 +39,7 @@
           </template></vue-awesome-paginate>
       </div>
     </div>
-    <h2 v-else>No orders found!</h2>
+    <h4 v-else>No orders found!</h4>
   </div>
 </template>
 

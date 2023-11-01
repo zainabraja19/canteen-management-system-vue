@@ -8,6 +8,8 @@ const menuSchema = mongoose.Schema({
     price: {
         type: Number,
         required: true,
+        min: 0,
+        max: 1000
     },
     isAvailable: {
         type: Boolean,
@@ -16,10 +18,10 @@ const menuSchema = mongoose.Schema({
     image: {
         type: Buffer,
     },
-    onlyForToday: {
-        type: Boolean,
-        // required: true
-    }
+    // onlyForToday: {
+    //     type: Boolean,
+    //     // required: true
+    // }
 })
 
 const Menu = mongoose.model('Menu', menuSchema)

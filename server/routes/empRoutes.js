@@ -5,6 +5,8 @@ const Employee = require('../models/employee');
 const Order = require('../models/orders')
 const multer = require('multer')
 const nodemailer = require('nodemailer');
+const FileType = require('file-type');
+var detect = require('detect-file-type');
 require('dotenv').config()
 
 
@@ -30,8 +32,9 @@ router.post('/:empId/profilePicture', imgUpload.single('profilePicture'), async 
     try {
         const empId = req.params.empId
         const image = req.file.buffer;
-
-        await Employee.findOneAndUpdate({ empId }, { profilePicture: image }, { new: true, passRawResult: true })
+        const fileType = await FileType.fromBuffer(image)
+        console.log(fileType);
+        await Employee.findOneAndUpdate({ empId }, { profilePicture: { buffer: image, extension: fileType.ext, mimeType: fileType.mime } }, { new: true, passRawResult: true })
 
         res.status(200).json({
             status: 'success',
@@ -39,6 +42,7 @@ router.post('/:empId/profilePicture', imgUpload.single('profilePicture'), async 
                 id: empId,
                 name: req.file.originalname,
                 size: req.file.size,
+                // extension: fileExtension
             },
         })
     } catch (err) {
@@ -49,8 +53,10 @@ router.post('/:empId/profilePicture', imgUpload.single('profilePicture'), async 
 // Fetch employee profile picture
 router.get('/:empId/profilePicture', async (req, res) => {
     try {
-
         const empProfile = await Employee.findOne({ empId: req.params.empId }).select('profilePicture')
+        // console.log(empProfile);
+        // console.log(Buffer.from(empProfile, 'hex'));
+        // console.log(await FileType.fromBuffer(Buffer.from(empProfile, 'base64')));
 
         res.status(200).json({ data: empProfile })
 
@@ -66,8 +72,9 @@ const pdfUpload = multer({
         fileSize: 1024 * 1024 * 5, // 5 MB (in bytes)
     },
     fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(pdf|docx|doc)$/)) {
-            return cb(new Error('Please upload only .pdf files.'))
+        console.log(file.originalname);
+        if (!file.originalname.match(/\.(pdf|docx)$/)) {
+            return cb(new Error('Please upload only .pdf/.docx files.'))
         }
 
         cb(undefined, true)
@@ -78,15 +85,11 @@ const pdfUpload = multer({
 router.post('/:empId/resume', pdfUpload.single('resume'), async (req, res) => {
     try {
         const empId = req.params.empId
-        // console.log(req.body);
-        // console.log(req.file)
         const resume = req.file.buffer;
-        const contentType = req.file.mimetype
-        // console.log(image, contentType);
-        const emp = await Employee.findOneAndUpdate({ empId }, { resume }, { new: true, passRawResult: true })
-        // const emp = { ...user.toObject() };
-        // delete emp.profilePicture;
-        console.log("update");
+        const fileType = await FileType.fromBuffer(resume)
+
+        const emp = await Employee.findOneAndUpdate({ empId }, { resume: { buffer: resume, extension: fileType.ext, mimeType: fileType.mime } }, { new: true, passRawResult: true })
+
         res.status(200).json({
             status: 'success',
             data: {
@@ -100,11 +103,22 @@ router.post('/:empId/resume', pdfUpload.single('resume'), async (req, res) => {
     }
 })
 
-// Fetch employee profile picture
+// Fetch employee resume
 router.get('/:empId/resume', async (req, res) => {
     try {
 
         const empResume = await Employee.findOne({ empId: req.params.empId }).select('resume')
+
+        // let extension
+
+        // detect.fromBuffer(empResume, function (err, result) {
+
+        //     if (err) {
+        //         return console.log(err);
+        //     }
+
+        //     extension = result.ext
+        // });
 
         res.status(200).json({ data: empResume })
 
@@ -185,6 +199,10 @@ router.get('/:empId/cart', async (req, res) => {
             .populate('items.item')
 
         console.log(cart);
+
+        if (!cart) {
+            return res.status(200).json({ data: { items: [], cartTotal: 0, totalItems: 0 } })
+        }
 
         const { items, cartTotal, totalItems } = cart
 

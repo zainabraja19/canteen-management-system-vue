@@ -16,11 +16,11 @@ import EmployeeOrders from './views/employee/EmployeeOrders'
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: '/', redirect: store.getters['auth/isAuthenticated'] ? `/${store.getters['auth/userRole']}` : '/login' },
+        { path: '/', redirect: store.getters['auth/isAuthenticated'] ? `/${store.getters['auth/userRole'] === 'employee' ? 'user' : 'admin'}` : '/login' },
         { path: '/signup', component: AuthSignup, meta: { requiresUnauth: true } },
         { path: '/login', component: AuthLogin, meta: { requiresUnauth: true } },
         {
-            path: '/employee', component: Employee, meta: { requiresAuth: true, role: 'employee' }, children: [
+            path: '/user', component: Employee, meta: { requiresAuth: true, role: 'employee' }, children: [
                 { path: '', component: EmployeeHome },
                 { path: 'profile', component: EmployeeProfile },
                 { path: 'cart', component: EmployeeCart },
@@ -41,7 +41,7 @@ const router = createRouter({
 router.beforeEach(function (to, _, next) {
     if (to.meta.requiresUnauth) {
         if (store.getters['auth/isAuthenticated']) {
-            next(`/${store.getters['auth/userRole']}`);
+            next(`/${store.getters['auth/userRole'] === 'employee' ? 'user' : 'admin'}`);
         }
     } else {
         if (!store.getters['auth/isAuthenticated']) {

@@ -1,5 +1,4 @@
 export function Options(type, pond) {
-    console.log(type);
     const imageTypes = ["image/jpeg", "image/png", "image/jpg"]
     const docTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword']
     const options = {

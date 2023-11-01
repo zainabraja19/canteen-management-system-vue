@@ -30,11 +30,9 @@ export default {
   },
   computed: {
     didAutoLogout() {
-      // console.log(this.$store.getters.didAutoLogout);
       return this.$store.getters['auth/didAutoLogout'];
     },
     isOrderPlaced() {
-      console.log(this.$store.getters['employee/orderPlaced']);
       return this.$store.getters['employee/orderPlaced'];
     },
     isLoggedIn() {
@@ -46,13 +44,11 @@ export default {
   },
   watch: {
     didAutoLogout(curValue, oldValue) {
-      console.log(curValue, oldValue);
       if (curValue && curValue !== oldValue) {
         this.$router.push('/login');
       }
     },
     isOrderPlaced(newVal) {
-      console.log(newVal);
       this.orderPlaced = newVal;
     },
   },

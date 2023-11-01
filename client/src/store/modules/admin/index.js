@@ -8,6 +8,7 @@ export default ({
         return {
             orders: null,
             menu: null,
+            totalMenuItems: 0,
             totalOrders: 0
         };
     },

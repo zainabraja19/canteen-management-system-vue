@@ -31,7 +31,7 @@ export function Validator(field, value) {
             break;
         case 'phone':
             //eslint-disable-next-line
-            regex = /^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/
+            regex = /^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/
             if (value === '') {
                 errors.phone = "Phone no. is required!"
             } else if (!regex.test(value)) {

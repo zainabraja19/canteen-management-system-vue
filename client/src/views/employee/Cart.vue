@@ -7,17 +7,10 @@
           <h5 class="text-muted">{{ cartCount }} items</h5>
         </div>
         <hr class="mb-1" />
-        <div
-          class="row g-0 align-items-center"
-          v-for="(item, index) in cartItems"
-          :key="index"
-        >
+        <div class="row g-0 align-items-center" v-for="(item, index) in cartItems" :key="index">
           <div class="col-4 p-2">
-            <img
-              src="https://www.vegrecipesofindia.com/wp-content/uploads/2017/07/cream-cheese-sandwich-recipe-1.jpg"
-              class="img-fluid rounded-start w-25 h-25"
-              alt="..."
-            />
+            <img src="https://www.vegrecipesofindia.com/wp-content/uploads/2017/07/cream-cheese-sandwich-recipe-1.jpg"
+              class="img-fluid rounded-start w-25 h-25" alt="..." />
           </div>
           <div class="col-8">
             <div class="row">
@@ -26,30 +19,20 @@
               </div>
               <div class="col-3 item">
                 <!-- <button type="button" :disabled="item.quantity === 1"> -->
-                <i
-                  type="button"
-                  class="bi bi-dash-circle me-2 text-danger"
-                  @click="
-                    item.quantity > 1 ? removeCartItem(item.item._id, 1) : null
-                  "
-                ></i>
+                <i type="button" class="bi bi-dash-circle me-2 text-danger" @click="
+                  removeCartItem(item.item._id, 1)
+                  "></i>
                 <!-- </button> -->
                 <span>{{ item.quantity }}</span>
-                <i
-                  class="bi bi-plus-circle ms-2 text-success"
-                  @click="
-                    item.quantity < 10 ? addCartItem(item.item._id) : null
-                  "
-                ></i>
+                <i class="bi bi-plus-circle ms-2 text-success" @click="
+                  item.quantity < 10 ? addCartItem(item.item._id) : null
+                  "></i>
               </div>
               <div class="col-3 item text-muted">
-                {{ formatPrice(item.price * item.quantity) }}
+                {{ formatPrice(item.item.price * item.quantity) }}
               </div>
               <div class="col-3 text-danger">
-                <i
-                  class="bi bi-trash3 text-danger"
-                  @click="removeCartItem(item.item._id, item.quantity)"
-                ></i>
+                <i class="bi bi-trash3 text-danger" @click="removeCartItem(item.item._id, item.quantity)"></i>
               </div>
             </div>
           </div>
@@ -62,17 +45,11 @@
         <hr />
         <div class="d-flex flex-column align-items-center">
           <div class="w-50">
-            <div
-              class="text-uppercase text-muted d-flex flex-row justify-content-between w-100"
-            >
+            <div class="text-uppercase text-muted d-flex flex-row justify-content-between w-100">
               <div>Total Amount</div>
               <div>{{ formatPrice(+cartTotal) }}</div>
             </div>
-            <button
-              type="button"
-              class="place-order btn btn-dark text-uppercase w-100 my-4"
-              @click="handleOrderPlaced"
-            >
+            <button type="button" class="place-order btn btn-dark text-uppercase w-100 my-4" @click="handleOrderPlaced">
               Place Order
             </button>
           </div>
@@ -106,7 +83,6 @@ export default {
     //   empId: await this.$store.getters['auth/user'].empId,
     // });
     this.cartCount = await this.$store.getters['employee/cartCount'];
-    console.log(this.cartCount);
 
     await this.$store.dispatch('employee/fetchCart', {
       empId: await this.$store.getters['auth/user'].empId,

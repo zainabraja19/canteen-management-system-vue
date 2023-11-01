@@ -1,25 +1,29 @@
 <template>
-  <tr
-    class="accordion accordion-flush"
-    id="accordionFlushExample"
-    data-bs-toggle="collapse"
-    :data-bs-target="'#orderDetails' + index"
-  >
+  <tr class="accordion accordion-flush" id="accordionFlushExample" data-bs-toggle="collapse"
+    :data-bs-target="'#orderDetails' + index">
     <th scope="row">{{ order.orderId }}</th>
     <td>{{ order.employee.empId }}</td>
     <td>{{ order.employee.name }}</td>
     <td v-if="role === 'admin'">{{ order.employee.phone }}</td>
     <td>{{ formatPrice(+order.totalAmount) }}</td>
     <td>{{ formatDateTime(order.orderDate) }}</td>
-    <td v-if="role === 'employee'">
-      <span
-        class="badge text-light"
-        :class="{
+    <td>
+      <div v-if="role === 'employee'">
+        <span class="badge text-light" :class="{
           'text-bg-success': order.completed,
           'text-bg-warning': !order.completed,
-        }"
-        >{{ order.completed ? 'Completed' : 'Processing' }}</span
-      >
+        }">{{ order.completed ? 'Completed' : 'Processing' }}</span>
+      </div>
+      <div v-else>
+        <!-- <div class="form-check form-switch d-flex justify-content-center"> -->
+        <!-- <input class="form-check-input" type="checkbox" role="switch" data-on-text="Si" data-off-text="No"
+          style="font-size: larger;" value="order.completed"> -->
+        <span class="badge text-light" :class="{
+          'text-bg-success': order.completed,
+          'text-bg-warning': !order.completed,
+        }">{{ order.completed ? 'Completed' : 'Processing' }}</span>
+        <!-- </div> -->
+      </div>
     </td>
     <td>
       <div :data-bs-target="'#orderDetails' + index">
@@ -27,11 +31,7 @@
       </div>
     </td>
   </tr>
-  <tr
-    class="accordion-collapse collapse"
-    :id="'orderDetails' + index"
-    data-bs-parent=".table"
-  >
+  <tr class="accordion-collapse collapse" :id="'orderDetails' + index" data-bs-parent=".table">
     <td colspan="7">
       <div class="accordion-body table-responsive pt-2 px-4">
         <h5 class="text-start">Details</h5>

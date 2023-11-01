@@ -1,91 +1,47 @@
 <template>
   <div class="auth-container d-flex justify-content-center align-items-center">
     <!-- <div class="d-flex justify-content-center align-items-center"> -->
-    <div
-      class="card m-4 p-4 col-xl-4 col-lg-5 col-md-8 col-12 shadow bg-body rounded"
-    >
+    <div class="card m-4 p-4 col-xl-4 col-lg-5 col-md-8 col-12 shadow bg-body rounded">
       <h4 class="text-center fw-bold">LOGIN</h4>
       <div class="card-body">
-        <div
-          class="alert alert-danger alert-dismissible fade show"
-          role="alert"
-          v-if="errors.login"
-        >
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" v-if="errors.login">
           {{ errors.login }}
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="alert"
-            aria-label="Close"
-          ></button>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <form class="row g-3" @submit.prevent="onSubmit()" novalidate>
           <div class="col-12">
-            <label for="email" class="form-label">Email</label>
-            <input
-              type="email"
-              class="form-control"
-              id="email"
-              name="email"
-              v-model.trim="email"
-              required
-              @change="handleValidations"
-            />
-            <div
-              class="text-danger mt-2"
-              v-if="errors.email"
-              style="text-transform: capitalize"
-            >
+            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" id="email" name="email" v-model.trim="email" required
+              @change="handleValidations" />
+            <div class="text-danger mt-2" v-if="errors.email" style="text-transform: capitalize">
               <i class="bi bi-info-circle"></i> {{ errors.email }}
             </div>
           </div>
           <div class="col-12">
-            <label for="password" class="form-label">Password</label>
+            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
             <div class="d-flex align-items-center">
-              <input
-                :type="passwordType"
-                class="form-control"
-                id="password"
-                name="password"
-                v-model.trim="password"
-                @change="handleValidations"
-                required
-                minlength="6"
-              />
+              <input :type="passwordType" class="form-control" id="password" name="password" v-model.trim="password"
+                @change="handleValidations" required minlength="6" />
               <span class="icon is-small is-right" style="margin-left: -2rem">
-                <i
-                  class="bi"
-                  :class="{
-                    'bi-eye': !showPassword,
-                    'bi-eye-slash': showPassword,
-                  }"
-                  @click="toggleShow"
-                ></i>
+                <i class="bi" :class="{
+                  'bi-eye': !showPassword,
+                  'bi-eye-slash': showPassword,
+                }" @click="toggleShow"></i>
               </span>
             </div>
-            <div
-              class="text-danger mt-2"
-              v-if="errors.password"
-              style="text-transform: capitalize"
-            >
+            <div class="text-danger mt-2" v-if="errors.password" style="text-transform: capitalize">
               <i class="bi bi-info-circle"></i> {{ errors.password }}
             </div>
           </div>
           <div class="col-12 d-grid mt-4">
-            <button
-              type="submit"
-              class="authButton btn text-light"
-              :disabled="!formIsValid"
-            >
+            <button type="submit" class="authButton btn text-light" :disabled="!formIsValid">
               Sign In
             </button>
           </div>
           <hr />
           <div class="mt-0 text-secondary float-right">
             Don't have an account?
-            <router-link class="authLink text-decoration-none" to="signup"
-              >Signup</router-link
-            >
+            <router-link class="authLink text-decoration-none" to="signup">Signup</router-link>
           </div>
         </form>
       </div>
@@ -135,7 +91,7 @@ export default {
         const role = this.$store.getters['auth/userRole'];
 
         this.errors.login = null;
-        this.$router.push(`/${role}`);
+        this.$router.push(`/${role === 'employee' ? 'user' : 'admin'}`);
       } catch (err) {
         this.errors.login = err.error;
       }
@@ -152,9 +108,11 @@ export default {
 .auth-container {
   min-height: 100vh !important;
 }
+
 .authButton {
   background-color: #006363 !important;
 }
+
 .authLink {
   color: #006363 !important;
 }

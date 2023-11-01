@@ -2,6 +2,9 @@ export default {
     menu(state) {
         return state.menu
     },
+    totalMenuItems(state) {
+        return state.totalMenuItems
+    },
     orders(state) {
         return state.orders
     },
