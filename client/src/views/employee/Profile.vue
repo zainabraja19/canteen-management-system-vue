@@ -1,9 +1,12 @@
 <template>
-  <div class="profile-container d-flex justify-content-center">
-    <!-- <div
-      style="min-width: 100%"
-    > -->
-    <!-- <h3>PROFILE</h3> -->
+  <error-toast v-if="isError" :error="error"></error-toast>
+  <div v-if="isLoading" class="loading d-flex justify-content-center align-items-center mh-100">
+    <div class="spinner-grow text-secondary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div v-else class="profile-container d-flex justify-content-center">
     <div class="shadow mb-5 bg-body rounded">
       <div class="card">
         <div class="card-body p-4">
@@ -24,25 +27,6 @@
                 <span class="camera-icon" type="button" data-bs-toggle="modal" @click="handleUploadType('image')"
                   data-bs-target="#upload"><i class="bi bi-camera-fill"></i></span>
               </div>
-              <!-- <div class="img-thumbnail img-circle">
-          <div
-            style="position: relative; padding: 0; cursor: pointer"
-            type="file"
-          >
-            <img class="img-circle" style="width: 140px; height: 140px" />
-            <span style="position: absolute; color: red">UPLOAD</span>
-          </div>
-        </div> -->
-
-              <!-- Button trigger modal -->
-              <!-- <button
-          type="button"
-          data-bs-toggle="modal"
-          @click="handleUploadType('image')"
-          data-bs-target="#upload"
-        >
-          Upload
-        </button> -->
 
               <!-- Modal -->
               <div class="modal fade" id="upload" tabindex="-1" aria-labelledby="uploadLabel" aria-hidden="true">
@@ -120,25 +104,40 @@
 <script>
 import ImageUpload from '../../components/ImageUpload.vue';
 import PdfUpload from '../../components/PdfUpload.vue';
+import ErrorToast from '../../components/ErrorToast.vue';
 
 export default {
   data() {
     return {
-      user: this.$store.getters['auth/user'],
+      user: null,
       uploadType: null,
       profilePicture: null,
       resume: null,
+      isLoading: true,
+      isError: false,
+      error: null
     };
   },
   async created() {
-    this.$store.dispatch('employee/fetchProfilePicture', {
-      empId: this.user.empId,
-    });
+    this.user = await this.$store.getters['auth/user']
 
-    this.$store.dispatch('employee/fetchResume', {
-      empId: this.user.empId,
-    });
+    if (this.user) {
+      this.isLoading = false
+    }
+    try {
+      this.$store.dispatch('employee/fetchProfilePicture', {
+        empId: this.user.empId,
+      });
 
+      this.$store.dispatch('employee/fetchResume', {
+        empId: this.user.empId,
+      });
+      this.error = null
+      this.isError = false
+    } catch (err) {
+      this.error = err
+      this.isError = true
+    }
     // this.profilePicture = await this.$store.getters['employee/profilePicture']
   },
   computed: {
@@ -175,6 +174,7 @@ export default {
   components: {
     ImageUpload,
     PdfUpload,
+    ErrorToast
   },
   // mounted() {
   //     this.$watch('computeProfilePicture', async (val) => {

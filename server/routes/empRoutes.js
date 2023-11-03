@@ -36,8 +36,8 @@ router.post('/:empId/profilePicture', imgUpload.single('profilePicture'), async 
         console.log(fileType);
         await Employee.findOneAndUpdate({ empId }, { profilePicture: { buffer: image, extension: fileType.ext, mimeType: fileType.mime } }, { new: true, passRawResult: true })
 
-        res.status(200).json({
-            status: 'success',
+        res.status(201).json({
+            status: 201,
             data: {
                 id: empId,
                 name: req.file.originalname,
@@ -46,7 +46,7 @@ router.post('/:empId/profilePicture', imgUpload.single('profilePicture'), async 
             },
         })
     } catch (err) {
-        res.status(400).json({ status: 400, data: null, error: err })
+        res.status(400).json({ status: 400, data: null, error: err, status: 400 })
     }
 })
 
@@ -57,11 +57,14 @@ router.get('/:empId/profilePicture', async (req, res) => {
         // console.log(empProfile);
         // console.log(Buffer.from(empProfile, 'hex'));
         // console.log(await FileType.fromBuffer(Buffer.from(empProfile, 'base64')));
-
-        res.status(200).json({ data: empProfile })
+        if (empProfile.profilePicture) {
+            res.status(200).json({ data: empProfile, status: 200 })
+        } else {
+            res.status(200).json({ data: '', status: 200 })
+        }
 
     } catch (err) {
-        res.status(400).json({ data: null, error: err })
+        res.status(400).json({ data: null, error: err, status: 400 })
     }
 })
 
@@ -90,8 +93,8 @@ router.post('/:empId/resume', pdfUpload.single('resume'), async (req, res) => {
 
         const emp = await Employee.findOneAndUpdate({ empId }, { resume: { buffer: resume, extension: fileType.ext, mimeType: fileType.mime } }, { new: true, passRawResult: true })
 
-        res.status(200).json({
-            status: 'success',
+        res.status(201).json({
+            status: 201,
             data: {
                 id: empId,
                 name: req.file.originalname,
@@ -99,7 +102,7 @@ router.post('/:empId/resume', pdfUpload.single('resume'), async (req, res) => {
             },
         })
     } catch (err) {
-        res.status(400).json({ status: 400, data: null, error: err })
+        res.status(400).json({ data: null, error: err, status: 400 })
     }
 })
 
@@ -108,22 +111,12 @@ router.get('/:empId/resume', async (req, res) => {
     try {
 
         const empResume = await Employee.findOne({ empId: req.params.empId }).select('resume')
+        console.log(empResume.resume);
 
-        // let extension
-
-        // detect.fromBuffer(empResume, function (err, result) {
-
-        //     if (err) {
-        //         return console.log(err);
-        //     }
-
-        //     extension = result.ext
-        // });
-
-        res.status(200).json({ data: empResume })
+        res.status(200).json({ data: empResume, status: 200 })
 
     } catch (err) {
-        res.status(400).json({ data: null, error: err })
+        res.status(400).json({ data: null, error: err, status: 400 })
     }
 })
 
@@ -131,9 +124,10 @@ router.get('/:empId/resume', async (req, res) => {
 router.get('/menu', async (req, res) => {
     try {
         const menu = await Menu.find({ isAvailable: true })
-        res.status(200).json({ data: menu })
+        res.status(200).json({ data: menu, status: 200 })
     } catch (error) {
-        res.json(500).json({ data: null, error })
+        console.log(error.message);
+        res.status(400).json({ data: null, error: error.message, status: 400 })
     }
 })
 
@@ -185,9 +179,9 @@ router.post('/:empId/cart', async (req, res) => {
             );
         }
         console.log(itemInCart ? "updated" : "added", updatedCart);
-        res.status(200).json({ data: updatedCart });
+        res.status(200).json({ data: updatedCart, status: 200 });
     } catch (error) {
-        res.status(400).json({ error });
+        res.status(400).json({ data: null, error, status: 400 });
     }
 })
 
@@ -201,7 +195,7 @@ router.get('/:empId/cart', async (req, res) => {
         console.log(cart);
 
         if (!cart) {
-            return res.status(200).json({ data: { items: [], cartTotal: 0, totalItems: 0 } })
+            return res.status(200).json({ data: { items: [], cartTotal: 0, totalItems: 0 }, status: 200 })
         }
 
         const { items, cartTotal, totalItems } = cart
@@ -211,10 +205,9 @@ router.get('/:empId/cart', async (req, res) => {
             cartTotal,
             totalItems
         }
-
-        res.status(200).json({ data })
+        res.status(200).json({ data, status: 200 })
     } catch (error) {
-        res.status(400).json({ data: null, error })
+        res.status(400).json({ data: null, error, status: 400 })
     }
 
 })
@@ -264,9 +257,9 @@ router.patch('/:empId/cart', async (req, res) => {
             await updatedCart.save();
         }
 
-        res.status(200).json({ data: updatedCart });
+        res.status(200).json({ data: updatedCart, status: 200 });
     } catch (error) {
-        res.status(400).json({ data: null, error })
+        res.status(400).json({ data: null, error, status: 400 })
     }
 })
 
@@ -275,12 +268,12 @@ router.get('/:empId/cartCount', async (req, res) => {
     try {
         const cart = await Cart.findOne({ employee: req.params.empId })
         if (!cart) {
-            res.status(200).json({ data: { count: 0 } })
+            res.status(200).json({ data: { count: 0 }, status: 200 })
         } else {
-            res.status(200).json({ data: { count: cart.totalItems } })
+            res.status(200).json({ data: { count: cart.totalItems }, status: 200 })
         }
     } catch (error) {
-        res.status(500).json({ data: null, error })
+        res.status(400).json({ data: null, error, status: 400 })
     }
 })
 
@@ -291,9 +284,9 @@ router.get('/cartTotal', async (req, res) => {
         cart.items.map(item => {
             console.log(item);
         })
-        res.status(200).json({ data: { count: cart.cartTotal } })
+        res.status(200).json({ data: { count: cart.cartTotal }, status: 200 })
     } catch (error) {
-        res.status(500).json({ data: null, error })
+        res.status(400).json({ data: null, error, status: 400 })
     }
 })
 
@@ -301,9 +294,9 @@ router.get('/cartTotal', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         // const emp = Employee.findById(req.user._id)
-        res.status(200).json({ data: req.user })
+        res.status(200).json({ data: req.user, status: 200 })
     } catch (error) {
-        res.status(500).json({ data: null, error })
+        res.status(400).json({ data: null, error, status: 400 })
     }
 })
 
@@ -319,11 +312,11 @@ router.delete('/', async (req, res) => {
         await Cart.deleteMany({ employee: req.user._id });
         await Order.deleteMany({ orderedBy: req.user._id });
 
-        res.status(200).json({ data: "Deleted successfully" })
+        res.status(200).json({ data: "Deleted successfully", status: 200 })
 
     } catch (err) {
         console.log(err)
-        res.status(500).json({ data: null, error: err })
+        res.status(400).json({ data: null, error: err, status: 400 })
     }
 })
 
@@ -428,9 +421,10 @@ router.post("/:empId/order", async (req, res) => {
 
         await Cart.findOneAndDelete({ employee: req.params.empId })
 
-        res.status(200).json({ data: order })
+        res.status(200).json({ data: order, status: 200 })
+
     } catch (error) {
-        res.status(400).json({ data: null, error });
+        res.status(400).json({ data: null, error, status: 400 });
     }
 })
 
@@ -449,9 +443,9 @@ router.get('/:empId/order', async (req, res) => {
             .populate('employee', 'empId name')
             .populate("items.item")
 
-        res.status(200).json({ data: { orders, totalOrders } })
+        res.status(200).json({ data: { orders, totalOrders }, status: 200 })
     } catch (err) {
-        res.status(500).json({ data: null, error: err })
+        res.status(400).json({ data: null, error: err, status: 400 })
     }
 })
 

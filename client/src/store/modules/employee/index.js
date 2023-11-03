@@ -15,7 +15,8 @@ export default ({
             cartCount: 0,
             orderPlaced: false,
             empOrders: null,
-            totalOrders: 0
+            totalOrders: 0,
+            errors: ''
         };
     },
     mutations,

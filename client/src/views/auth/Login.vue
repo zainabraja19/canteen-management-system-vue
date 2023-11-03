@@ -35,7 +35,11 @@
           </div>
           <div class="col-12 d-grid mt-4">
             <button type="submit" class="authButton btn text-light" :disabled="!formIsValid">
-              Sign In
+              <div v-if="isLoading">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <span v-else>Sign In</span>
             </button>
           </div>
           <hr />
@@ -60,6 +64,7 @@ export default {
       password: '',
       errors: {},
       showPassword: false,
+      isLoading: false
     };
   },
   computed: {
@@ -80,6 +85,7 @@ export default {
       this.showPassword = !this.showPassword;
     },
     async onSubmit() {
+      this.isLoading = true
       try {
         const actionPayload = {
           email: this.email,
@@ -88,11 +94,16 @@ export default {
 
         await this.$store.dispatch('auth/login', actionPayload);
 
+        if (this.$store.getters['auth/isAuthenticated']) {
+          this.isLoading = false
+        }
+
         const role = this.$store.getters['auth/userRole'];
 
         this.errors.login = null;
         this.$router.push(`/${role === 'employee' ? 'user' : 'admin'}`);
       } catch (err) {
+        this.isLoading = false
         this.errors.login = err.error;
       }
     },

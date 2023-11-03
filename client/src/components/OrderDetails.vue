@@ -35,7 +35,7 @@
     <td colspan="7">
       <div class="accordion-body table-responsive pt-2 px-4">
         <h5 class="text-start">Details</h5>
-        <table class="table table-success table-bordered">
+        <table class="table table-secondary table-bordered">
           <thead>
             <tr>
               <th scope="col">#</th>

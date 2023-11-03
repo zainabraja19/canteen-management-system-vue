@@ -1,5 +1,11 @@
 <template>
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  <error-toast v-if="isError" :error="error"></error-toast>
+  <div v-if="isLoading" class="loading d-flex justify-content-center align-items-center mh-100">
+    <div class="spinner-grow text-secondary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  <div v-else class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     <div class="col" v-for="(item, index) in items" :key="index">
       <div class="card">
         <div class="row g-0">
@@ -53,11 +59,15 @@
 
 <script>
 import { formatPrice } from '../../utils/FormatPrice';
+import ErrorToast from '../../components/ErrorToast.vue';
 export default {
   data() {
     return {
       items: null,
-      cartItems: null
+      cartItems: null,
+      isLoading: true,
+      isError: false,
+      error: null
     };
   },
   computed: {
@@ -72,30 +82,56 @@ export default {
     }
   },
   async mounted() {
-    await this.$store.dispatch('employee/fetchCart', {
-      empId: await this.$store.getters['auth/user'].empId,
-    });
+    try {
+      await this.$store.dispatch('employee/fetchCart', {
+        empId: await this.$store.getters['auth/user'].empId,
+      });
 
-    this.cartItems = await this.$store.getters['employee/cartItems'];
-    await this.$store.dispatch('employee/fetchMenu');
-    this.items = await this.$store.getters['employee/menu'];
+      this.cartItems = await this.$store.getters['employee/cartItems'];
+      await this.$store.dispatch('employee/fetchMenu');
+      this.items = await this.$store.getters['employee/menu'];
 
+      if (this.items) {
+        this.isLoading = false
+      }
 
+      this.error = null
+      this.isError = false
+    } catch (err) {
+      this.error = err
+      this.isError = true
+    }
   },
   methods: {
     formatPrice,
     async addToCart(id) {
-      await this.$store.dispatch('employee/addToCart', {
-        empId: this.$store.getters['auth/user'].empId,
-        itemId: id,
-      });
+      try {
+        await this.$store.dispatch('employee/addToCart', {
+          empId: this.$store.getters['auth/user'].empId,
+          itemId: id,
+        });
+
+        this.error = null
+        this.isError = false
+      } catch (err) {
+        this.error = err
+        this.isError = true
+      }
     },
     async removeFromCart(itemId, deleteCount) {
-      await this.$store.dispatch('employee/removeFromCart', {
-        empId: this.$store.getters['auth/user'].empId,
-        itemId,
-        deleteCount,
-      });
+      try {
+        await this.$store.dispatch('employee/removeFromCart', {
+          empId: this.$store.getters['auth/user'].empId,
+          itemId,
+          deleteCount,
+        });
+
+        this.error = null
+        this.isError = false
+      } catch (err) {
+        this.error = err
+        this.isError = true
+      }
     },
     calculateItemQuantity(currentItem) {
       let quantity = 0
@@ -107,6 +143,9 @@ export default {
       return quantity
     }
   },
+  components: {
+    ErrorToast
+  }
 };
 </script>
 

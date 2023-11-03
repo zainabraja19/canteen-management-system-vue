@@ -1,113 +1,138 @@
 <template>
-  <h2>Menu Items</h2>
-  <hr />
-  <div class="table-responsive mt-4">
-    <table class="table text-center table-hover">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Item Name</th>
-          <th scope="col">Price</th>
-          <!-- <th scope="col">isAvailable</th> -->
-          <th scope="col">Available</th>
-          <th scope="col"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in   items  " :key="index">
-          <th scope="row">{{ index + 1 }}</th>
-          <td>{{ item.itemName }}</td>
-          <td>{{ formatPrice(+item.price) }}</td>
-          <td>{{ item.isAvailable ? 'Yes' : 'No' }}</td>
-          <!-- <td>
+  <error-toast v-if="isError" :error="error"></error-toast>
+  <div v-if="isLoading" class="loading d-flex justify-content-center align-items-center mh-100">
+    <div class="spinner-grow text-secondary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  <div v-else>
+
+    <h2>Menu Items</h2>
+    <!-- <hr /> -->
+    <div class="table-responsive mt-4" v-if="totalMenuItems > 0">
+      <div style="min-height: 450px;">
+        <table class="table text-center table-hover">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Item Name</th>
+              <th scope="col">Price</th>
+              <!-- <th scope="col">isAvailable</th> -->
+              <th scope="col">Available</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in   items  " :key="index">
+              <th scope="row">{{ index + 1 }}</th>
+              <td>{{ item.itemName }}</td>
+              <td>{{ formatPrice(+item.price) }}</td>
+              <td>{{ item.isAvailable ? 'Yes' : 'No' }}</td>
+              <!-- <td>
             <div class="form-check form-switch d-flex justify-content-center">
               <input class="form-check-input" type="checkbox" role="switch" style="font-size: larger;"
                 v-model="item.isAvailable">
             </div>
           </td> -->
-          <td>
-            <div data-bs-toggle="modal" data-bs-target="#editItemModal" @click="setSelectedItem(item)">
-              <i data-bs-toggle="tooltip" data-bs-placement="top" title="Edit details"
-                class="bi bi-pencil-square text-primary"></i>
-            </div>
-          </td>
-          <!-- <td>
+              <td>
+                <div data-bs-toggle="modal" data-bs-target="#editItemModal" @click="setSelectedItem(item)">
+                  <i data-bs-toggle="tooltip" data-bs-placement="top" title="Edit details"
+                    class="bi bi-pencil-square text-primary"></i>
+                </div>
+              </td>
+              <!-- <td>
             <div data-bs-toggle="modal" data-bs-target="#deleteItemModal" @click="setSelectedItemId(item._id)">
               <i data-bs-toggle="tooltip" data-bs-placement="top" title="Remove Item"
                 class="bi bi-trash3 text-danger"></i>
             </div>
           </td> -->
-        </tr>
-      </tbody>
-    </table>
-    <div class="pagination d-flex justify-content-center mt-4">
-      <vue-awesome-paginate :clickable="true" :prev-text="'Previous'" :next-text="'Next'" :total-items="totalMenuItems"
-        :items-per-page="10" :max-pages-shown="5" v-model="currentPage" :on-click="changePage">
-        <template #prev-button>
-          <span>
-            <i class="bi bi-chevron-left"></i>
-          </span>
-        </template>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination d-flex justify-content-center mt-4">
+        <vue-awesome-paginate :clickable="true" :prev-text="'Previous'" :next-text="'Next'" :total-items="totalMenuItems"
+          :items-per-page="10" :max-pages-shown="5" v-model="currentPage" :on-click="changePage">
+          <template #prev-button>
+            <span>
+              <i class="bi bi-chevron-left"></i>
+            </span>
+          </template>
 
-        <template #next-button>
-          <span>
-            <i class="bi bi-chevron-right"></i>
-          </span>
-        </template>
-      </vue-awesome-paginate>
+          <template #next-button>
+            <span>
+              <i class="bi bi-chevron-right"></i>
+            </span>
+          </template>
+        </vue-awesome-paginate>
+      </div>
+      <!-- </div> -->
     </div>
-    <!-- </div> -->
-  </div>
-  <!-- Modal -->
-  <!-- <MenuModalEdit v-if="modalVisible" :item="selectedItem"></MenuModalEdit> -->
-  <div class="modal fade" ref="my-modal" id="editItemModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Edit Item Details</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form class="row g-3 text-start px-3" novalidate @submit.prevent="handleEdit(selectedItem._id)">
-            <div class="col-12">
-              <label for="itemName" class="form-label"><strong>Item Name</strong></label>
-              <input type="text" class="form-control" id="itemName" name="itemName" v-model.trim="itemName"
-                maxlength="50" />
-            </div>
-            <div class="col-12">
-              <label for="price" class="form-label"><strong>Price</strong></label>
-              <input type="number" class="form-control" id="price" name="price" v-model.trim="price" min="0" max="1000"
-                @input="validatePrice" />
-              <p class="text-danger mt-2 mb-0" v-if="!isValidPrice">Price must be a valid number between 0 and
-                1000.</p>
-            </div>
-            <div class="col-12">
-              <label for="itemName" class="form-label"><strong>Available</strong></label>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="isAvailable" id="isAvailable1" v-model="isAvailable"
-                  value="true" />
-                <label class="form-check-label" for="isAvailable1"> Yes </label>
+    <div v-else>
+      <span class="me-2 fs-5">
+        <hr>
+        <strong>
+          There are no items present in the menu!
+        </strong>
+      </span>
+      <span class="ms-2">
+        <router-link to="/admin/addItem">
+          <button type="button" class="btn btn-dark">
+            Click here to add
+          </button>
+        </router-link>
+      </span>
+    </div>
+    <!-- Modal -->
+    <!-- <MenuModalEdit v-if="modalVisible" :item="selectedItem"></MenuModalEdit> -->
+    <div class="modal fade" ref="my-modal" id="editItemModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Edit Item Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form class="row g-3 text-start px-3" novalidate @submit.prevent="handleEdit(selectedItem._id)">
+              <div class="col-12">
+                <label for="itemName" class="form-label"><strong>Item Name</strong></label>
+                <input type="text" class="form-control" id="itemName" name="itemName" v-model.trim="itemName"
+                  maxlength="50" />
               </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="isAvailable" id="isAvailable2" v-model="isAvailable"
-                  value="false" />
-                <label class="form-check-label" for="isAvailable2"> No </label>
+              <div class="col-12">
+                <label for="price" class="form-label"><strong>Price</strong></label>
+                <input type="number" class="form-control" id="price" name="price" v-model.trim="price" min="0" max="1000"
+                  @input="validatePrice" />
+                <p class="text-danger mt-2 mb-0" v-if="!isValidPrice">Price must be a valid number between 0 and
+                  1000.</p>
               </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                Cancel
-              </button>
-              <button type="submit" class="btn btn-dark" data-bs-dismiss="modal" :disabled="!isValidPrice">
-                Save changes
-              </button>
-            </div>
-          </form>
+              <div class="col-12">
+                <label for="itemName" class="form-label"><strong>Available</strong></label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="isAvailable" id="isAvailable1" v-model="isAvailable"
+                    value="true" />
+                  <label class="form-check-label" for="isAvailable1"> Yes </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="isAvailable" id="isAvailable2" v-model="isAvailable"
+                    value="false" />
+                  <label class="form-check-label" for="isAvailable2"> No </label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-dark" data-bs-dismiss="modal" :disabled="!isValidPrice">
+                  Save changes
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
   <!-- Delete modal -->
   <!-- <div class="modal fade" id="deleteItemModal" tabindex="-1" aria-labelledby="deleteItemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -144,6 +169,7 @@
 
 <script>
 import { formatPrice } from '../../utils/FormatPrice';
+import ErrorToast from '../../components/ErrorToast.vue';
 // import MenuModalEdit from '../../components/MenuModalEdit.vue';
 import { Tooltip } from 'bootstrap';
 export default {
@@ -160,6 +186,9 @@ export default {
       currentPage: 1,
       perPage: 10,
       isValidPrice: true,
+      isLoading: true,
+      isError: false,
+      error: null
     };
   },
   computed: {
@@ -192,6 +221,7 @@ export default {
   methods: {
     formatPrice,
     changePage(newPage) {
+      this.isLoading = true
       this.currentPage = newPage;
       this.fetchData()
     },
@@ -206,18 +236,23 @@ export default {
       if (this.isValidPrice) {
         const numericPrice = parseFloat(this.price);
         if (numericPrice < 0 || numericPrice > 1000) {
-          // this.price = 0;
           this.isValidPrice = false
         }
-        // else if (numericPrice > 1000) {
-        // this.price = 1000;
-        // }
       }
     },
     async fetchData() {
-      await this.$store.dispatch('admin/fetchMenu', { page: this.currentPage });
-      this.items = await this.$store.getters['admin/menu'];
-      this.totalMenuItems = await this.$store.getters['admin/totalMenuItems']
+      try {
+        await this.$store.dispatch('admin/fetchMenu', { page: this.currentPage });
+        this.items = await this.$store.getters['admin/menu'];
+        this.totalMenuItems = await this.$store.getters['admin/totalMenuItems']
+        this.isLoading = false
+
+        this.error = null
+        this.isError = false
+      } catch (err) {
+        this.error = err
+        this.isError = true
+      }
     },
     setSelectedItem(item) {
       this.modalVisible = !this.modalVisible;
@@ -242,12 +277,20 @@ export default {
         this.isAvailable = this.isAvailable === 'true' ? true : false;
         newData['isAvailable'] = this.isAvailable;
       }
+      try {
 
-      if (Object.keys(newData).length > 0)
-        this.$store.dispatch('admin/editItem', {
-          id,
-          newData,
-        });
+        if (Object.keys(newData).length > 0)
+          this.$store.dispatch('admin/editItem', {
+            id,
+            newData,
+          });
+
+        this.error = null
+        this.isError = false
+      } catch (err) {
+        this.error = err
+        this.isError = true
+      }
       this.fetchData()
     },
     // async handleDelete() {
@@ -260,9 +303,9 @@ export default {
     //   this.items = await this.$store.getters['admin/menu'];
     // }
   },
-  // components: {
-  //   MenuModalEdit,
-  // },
+  components: {
+    ErrorToast
+  },
 };
 </script>
 

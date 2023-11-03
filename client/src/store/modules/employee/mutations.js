@@ -22,5 +22,9 @@ export default {
     setEmpOrders(state, payload) {
         state.empOrders = payload.orders
         state.totalOrders = payload.totalOrders
+    },
+    setErrors(state, payload) {
+        console.log(payload);
+        state.errors = payload
     }
 }

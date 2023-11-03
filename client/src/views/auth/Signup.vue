@@ -2,7 +2,7 @@
   <div class="auth-container d-flex justify-content-center align-items-center">
     <div class="row">
       <div class="col-12 d-flex justify-content-center align-items-center">
-        <div class="card m-4 p-4 col-xl-5 col-lg-6 col-md-8 col-12">
+        <div class="card m-4 p-4 col-xl-4 col-lg-5 col-md-8 col-12 ">
           <h4 class="text-center fw-bold">SIGNUP</h4>
           <div class="card-body">
             <form class="row g-3" @submit.prevent="onSubmit()">
@@ -56,7 +56,11 @@
               </div>
               <div class="col-12 d-grid mt-4">
                 <button type="submit" class="btn authButton btn text-light" :disabled="!formIsValid">
-                  Sign Up
+                  <div v-if="isLoading">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <span v-else>Sign Up</span>
                 </button>
               </div>
               <hr />
@@ -85,6 +89,7 @@ export default {
       password: '',
       showPassword: false,
       error: {},
+      isLoading: false
     };
   },
   computed: {
@@ -112,33 +117,13 @@ export default {
       return this.showPassword ? 'text' : 'password';
     },
   },
-  // watch: {
-  //   empId(curVal) {
-  //     const error = Validator('empId', curVal);
-  //     this.error.empId = error.empId;
-  //   },
-  //   name(curVal) {
-  //     const error = Validator('name', curVal);
-  //     this.error.name = error.name;
-  //   },
-  //   email(curVal) {
-  //     const error = Validator('email', curVal);
-  //     this.error.email = error.email;
-  //   },
-  //   phone(curVal) {
-  //     const error = Validator('phone', curVal);
-  //     this.error.phone = error.phone;
-  //   },
-  //   password(curVal) {
-  //     const error = Validator('password', curVal);
-  //     this.error.password = error.password;
-  //   },
-  // },
   methods: {
     toggleShow() {
       this.showPassword = !this.showPassword;
     },
     async onSubmit() {
+      this.isLoading = true
+
       try {
         const actionPayload = {
           empId: this.empId,
@@ -149,8 +134,13 @@ export default {
         };
         await this.$store.dispatch('auth/signup', actionPayload);
 
+        if (this.$store.getters['auth/isAuthenticated']) {
+          this.isLoading = false
+        }
+
         this.$router.push(`/`);
       } catch (err) {
+        this.isLoading = false
         this.error = err.error;
       }
     },

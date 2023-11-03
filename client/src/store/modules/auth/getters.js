@@ -3,7 +3,7 @@ export default {
         return state.user;
     },
     userRole(state) {
-        return state.user ? state.user.role : null
+        return state.role
     },
     isAuthenticated(state) {
         return state.isAuthenticated;

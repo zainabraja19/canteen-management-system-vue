@@ -1,57 +1,71 @@
 <template>
-  <div class="d-flex justify-content-between ">
-    <h2>Orders</h2>
-    <div>
-      <select v-if="totalOrders > 0" class="form-select" v-model="selectedOption" @change="handleFilterChange">
-        <option value="all">All Orders</option>
-        <option value="remaining">Remaining Orders</option>
-        <option value="completed">Completed Orders</option>
-      </select>
+  <error-toast v-if="isError" :error="error"></error-toast>
+  <div v-if="isLoading" class="loading d-flex justify-content-center align-items-center mh-100">
+    <div class="spinner-grow text-secondary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
   </div>
-  <hr />
-  <div v-if="totalOrders > 0" class="table-responsive mt-4">
-    <table class="table text-center">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Employee ID</th>
-          <th scope="col">Name</th>
-          <th scope="col">Phone</th>
-          <th scope="col">Total</th>
-          <th scope="col">Order Date <i class="bi bi-arrow-down ms-2 text-secondary " @click="sortBy('orderDate')"></i>
-          </th>
-          <th scope="col">Completed <i class="bi bi-arrow-down ms-2 text-secondary " @click="sortBy('completed')"></i>
-          </th>
-          <th scope="col"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <OrderDetails :order="order" :index="index" role="admin" v-for="(order, index) in orders" :key="index">
-        </OrderDetails>
-      </tbody>
-    </table>
-    <div class="pagination d-flex justify-content-center mt-4">
-      <vue-awesome-paginate :clickable="true" :prev-text="'Previous'" :next-text="'Next'" :total-items="totalOrders"
-        :items-per-page="10" :max-pages-shown="5" v-model="currentPage" :on-click="changePage">
-        <template #prev-button>
-          <span>
-            <i class="bi bi-chevron-left"></i>
-          </span>
-        </template>
+  <div v-else>
+    <div class="d-flex justify-content-between ">
+      <h2>Orders</h2>
+      <div>
+        <select class=" form-select" v-model="selectedOption" @change="handleFilterChange">
+          <option value="all">All Orders</option>
+          <option value="remaining">Remaining Orders</option>
+          <option value="completed">Completed Orders</option>
+        </select>
+      </div>
+    </div>
+    <!-- <hr /> -->
+    <div v-if="totalOrders > 0" class="table-responsive mt-1">
+      <div style="min-height: 450px;">
+        <table class="table text-center">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Employee ID</th>
+              <th scope="col">Name</th>
+              <th scope="col">Phone</th>
+              <th scope="col">Total</th>
+              <th scope="col">Order Date <i class="bi bi-arrow-down ms-2 text-secondary "
+                  @click="sortBy('orderDate')"></i>
+              </th>
+              <th scope="col">Completed <i class="bi bi-arrow-down ms-2 text-secondary " @click="sortBy('completed')"></i>
+              </th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <OrderDetails :order="order" :index="index" role="admin" v-for="(order, index) in orders" :key="index">
+            </OrderDetails>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination d-flex justify-content-center mt-4">
+        <vue-awesome-paginate :clickable="true" :prev-text="'Previous'" :next-text="'Next'" :total-items="totalOrders"
+          :items-per-page="10" :max-pages-shown="5" v-model="currentPage" :on-click="changePage">
+          <template #prev-button>
+            <span>
+              <i class="bi bi-chevron-left"></i>
+            </span>
+          </template>
 
-        <template #next-button>
-          <span>
-            <i class="bi bi-chevron-right"></i>
-          </span>
-        </template></vue-awesome-paginate>
+          <template #next-button>
+            <span>
+              <i class="bi bi-chevron-right"></i>
+            </span>
+          </template></vue-awesome-paginate>
+      </div>
+    </div>
+    <div v-else class="fs-5">
+      <hr><strong>No orders remaining!</strong>
     </div>
   </div>
-  <h4 v-else>No orders remaining!</h4>
 </template>
 
 <script>
 import OrderDetails from '../../components/OrderDetails';
+import ErrorToast from '../../components/ErrorToast.vue';
 
 export default {
   data() {
@@ -61,6 +75,9 @@ export default {
       currentPage: 1,
       perPage: 10,
       selectedOption: 'all',
+      isLoading: true,
+      isError: false,
+      error: null
       // sortBy: { orderDate: -1, completed: 1 }
     };
   },
@@ -88,12 +105,22 @@ export default {
   },
   methods: {
     changePage(newPage) {
+      this.isLoading = true
       this.currentPage = newPage;
       this.fetchData()
     },
     async fetchData() {
-      await this.$store.dispatch('admin/fetchOrders', { page: this.currentPage, filter: this.selectedOption, });
-      this.totalOrders = this.$store.getters['admin/totalOrders']
+      try {
+        await this.$store.dispatch('admin/fetchOrders', { page: this.currentPage, filter: this.selectedOption, });
+        this.totalOrders = this.$store.getters['admin/totalOrders']
+        this.isLoading = false
+
+        this.error = null
+        this.isError = false
+      } catch (err) {
+        this.error = err
+        this.isError = true
+      }
     },
     handleFilterChange() {
       this.fetchData()
@@ -105,6 +132,7 @@ export default {
   },
   components: {
     OrderDetails,
+    ErrorToast
   },
 };
 </script>

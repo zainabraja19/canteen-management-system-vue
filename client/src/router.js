@@ -16,7 +16,9 @@ import EmployeeOrders from './views/employee/EmployeeOrders'
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: '/', redirect: store.getters['auth/isAuthenticated'] ? `/${store.getters['auth/userRole'] === 'employee' ? 'user' : 'admin'}` : '/login' },
+        {
+            path: '/'
+        },
         { path: '/signup', component: AuthSignup, meta: { requiresUnauth: true } },
         { path: '/login', component: AuthLogin, meta: { requiresUnauth: true } },
         {
@@ -37,27 +39,49 @@ const router = createRouter({
         { path: '/:notFound(.*)', component: NotFound },
     ]
 })
+let autoLoginExecuted = false;
 
-router.beforeEach(function (to, _, next) {
-    if (to.meta.requiresUnauth) {
-        if (store.getters['auth/isAuthenticated']) {
-            next(`/${store.getters['auth/userRole'] === 'employee' ? 'user' : 'admin'}`);
-        }
-    } else {
-        if (!store.getters['auth/isAuthenticated']) {
-            next('/login');
-            // return;
-        } else if (to.meta.role && to.meta.role.indexOf(store.getters['auth/userRole']) === -1) {
-            next('/');
-            // return;
-        }
-        // else {
-        //     next()
-        // }
+router.beforeEach(async function (to) {
+    console.log(to);
+    if (!autoLoginExecuted) {
+        await store.dispatch('auth/autoLogin');
+        autoLoginExecuted = true;
     }
-    next()
+
+    const isAuthenticated = store.getters['auth/isAuthenticated'];
+    const userRole = store.getters['auth/userRole'];
+
+    await Promise.all([isAuthenticated, userRole]);
+
+    const redirectPath = isAuthenticated ? `/${userRole === 'employee' ? 'user' : 'admin'}` : '/login';
+
+    if (to.path === '/') {
+        return redirectPath;
+
+    }
+    console.log(to.path);
+    if (to.meta.requiresUnauth) {
+        console.log(to.path);
+        // If the route is for unauthenticated users, allow access if the user is not authenticated
+        if (!isAuthenticated) {
+            // return true;
+        }
+    }
+
+    if (to.meta.requiresAuth) {
+        // If the route requires authentication, redirect to login if the user is not authenticated
+        if (!isAuthenticated) {
+            return '/login';
+        }
+
+        // Check if the user has the required role to access the route
+        const userRole = store.getters['auth/userRole'];
+        if (to.meta.role && to.meta.role !== userRole) {
+            return '/';
+        }
+    }
+
+    return true;
 });
-
-
 
 export default router

@@ -3,17 +3,20 @@
 
 export default {
     async fetchMenu(context) {
-        await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/menu`, {
+        const res = await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/menu`, {
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
-        }).then(res => res.json())
-            .then(response => {
-                context.commit('setMenu', { menu: response.data })
-            }).catch(err => {
-                console.log(err);
-            });
+        })
+
+        const response = await res.json()
+
+        if (!response.data && response.error) {
+            throw { message: response.error, status: response.status }
+        }
+
+        context.commit('setMenu', { menu: response.data })
     },
     async fetchProfilePicture(context, payload) {
         // const empId = this.$store.getters['auth/user'].empId
@@ -30,44 +33,42 @@ export default {
         });
     },
     async fetchData(context, payload) {
-        await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/${payload.type}`, { credentials: 'include' })
-            .then(res => res.json())
-            .then(async response => {
-                if (!response.data && response.data.error) {
-                    throw response.data.error
-                } else {
-                    const bufferData = response.data[payload.type].buffer
-                    if (bufferData !== null) {
-                        const buffer = Buffer.from(bufferData.data, 'base64');
+        const res = await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/${payload.type}`, { credentials: 'include' })
 
-                        const blob = new Blob([buffer], { type: response.data[payload.type].mimeType }
-                        );
-                        const url = window.URL.createObjectURL(blob)
+        const response = await res.json()
 
-                        context.commit(payload.type === 'resume' ? 'setResume' : 'setProfilePicture', { [payload.type]: url })
-                    }
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            })
+        if (!response.data && response.error) {
+            throw { message: response.error, status: response.status }
+        }
+
+        if (response.data[payload.type]) {
+            const bufferData = response.data[payload.type].buffer
+            // if (bufferData !== null) {
+            const buffer = Buffer.from(bufferData.data, 'base64');
+
+            const blob = new Blob([buffer], { type: response.data[payload.type].mimeType }
+            );
+            const url = window.URL.createObjectURL(blob)
+
+            context.commit(payload.type === 'resume' ? 'setResume' : 'setProfilePicture', { [payload.type]: url })
+            // }
+        } else {
+            context.commit(payload.type === 'resume' ? 'setResume' : 'setProfilePicture', { [payload.type]: null })
+        }
+
     },
     async cartCount(context, payload) {
-        await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/cartCount`, { credentials: 'include' })
-            .then(res => res.json())
-            .then(response => {
-                if (!response.data && response.data.error) {
-                    throw response.data.error
-                } else {
-                    context.commit('setCartCount', { count: response.data.count })
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            })
+        const res = await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/cartCount`, { credentials: 'include' })
+        const response = await res.json()
+
+        if (!response.data && response.error) {
+            throw { message: response.error, status: response.status }
+        }
+        console.log(response.data);
+        context.commit('setCartCount', { count: response.data.count })
     },
     async fetchCart(context, payload) {
-        await fetch(
+        const res = await fetch(
             `${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/cart`,
             {
                 credentials: 'include',
@@ -76,27 +77,19 @@ export default {
                 },
             }
         )
-            .then(res => res.json())
-            .then(responseData => {
-                context.commit('setCart', {
-                    items: responseData.data.items,
-                    // totalItems: responseData.data.totalItems,
-                    cartTotal: responseData.data.cartTotal
-                })
-            })
-            .catch(err => {
-                console.log(err);
-            })
+        const response = await res.json()
 
-        // this.items = responseData.data.items;
-        // this.totalItems = responseData.data.totalItems;
-        // this.cartTotal = responseData.data.cartTotal;
-
-        // console.log(this.items);
-
+        if (!response.data && response.error) {
+            throw { message: response.error, status: response.status }
+        }
+        context.commit('setCart', {
+            items: response.data.items,
+            // totalItems: response.data.totalItems,
+            cartTotal: response.data.cartTotal
+        })
     },
     async addToCart(context, payload) {
-        await fetch(
+        const res = await fetch(
             `${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/cart`,
             {
                 method: 'POST',
@@ -106,9 +99,14 @@ export default {
                 },
                 body: JSON.stringify({ itemId: payload.itemId }),
             }
-        ).then(res => res.json()).then(res => console.log(res));
+        )
 
-        // const responseData = await response.json();
+        const response = await res.json()
+
+        if (!response.data && response.error) {
+            throw { message: response.error, status: response.status }
+        }
+
         await context.dispatch('fetchCart', {
             ...payload
         });
@@ -118,7 +116,7 @@ export default {
         });
     },
     async removeFromCart(context, payload) {
-        await fetch(
+        const res = await fetch(
             `${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/cart`,
             {
                 method: 'PATCH',
@@ -130,6 +128,11 @@ export default {
             }
         );
 
+        const response = await res.json()
+
+        if (!response.data && response.error) {
+            throw { message: response.error, status: response.status }
+        }
         // const responseData = await response.json();
         await context.dispatch('fetchCart', {
             ...payload
@@ -140,7 +143,7 @@ export default {
         });
     },
     async placeOrder(context, payload) {
-        fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/order`, {
+        const res = await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/order`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -152,6 +155,12 @@ export default {
             }),
         });
 
+        const response = await res.json()
+
+        if (!response.data && response.error) {
+            throw { message: response.error, status: response.status }
+        }
+
         await context.commit('setCart', {
             items: [],
             cartTotal: 0
@@ -162,21 +171,50 @@ export default {
         });
     },
     async fetchEmployeeOrders(context, payload) {
-        fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/order?page=${payload.page}`, {
+        const res = await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${payload.empId}/order?page=${payload.page}`, {
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
         })
-            .then(res => res.json())
-            .then(response => {
-                context.commit('setEmpOrders', {
-                    orders: response.data.orders,
-                    totalOrders: response.data.totalOrders
-                })
-            })
-            .catch(err => {
-                console.log(err)
-            })
-    }
-};
+
+        const response = await res.json()
+
+        if (!response.data && response.error) {
+            throw { message: response.error, status: response.status }
+        }
+
+        context.commit('setEmpOrders', {
+            orders: response.data.orders,
+            totalOrders: response.data.totalOrders
+        })
+        context.commit('setErrors', null)
+    },
+    // handleErrors(context, payload) {
+    // let errorMessage = 'Something went wrong. Please try again!'
+    // let errors = {}
+
+    // if (payload.error.status === 401) {
+    //     errors.type = "Unauthorized"
+    //     errors.message = payload.error.message
+    //     console.log(errors);
+
+    //     // context.commit('setErrors', errors)
+    //     throw errors
+    // } else if (payload.error.status === 400) {
+    //     errors
+    // }
+
+    // if (errors) {
+    //     errorMessage = errors
+    //     Object.keys(errors).map(error => {
+    //         if (errors[error].type == "required") {
+    //             errors[error] = `${ error } is required!`
+    //         }
+    //     })
+    //     throw { error: errors }
+
+    // }
+    // throw { error: errorMessage }
+    // }
+}; 

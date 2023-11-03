@@ -70,16 +70,20 @@
       </div>
     </nav>
   </div>
+  <error-toast v-if="isError" :error="error"></error-toast>
 </template>
 
 <script>
 import { RouterLink } from 'vue-router';
+import ErrorToast from './ErrorToast.vue';
 
 export default {
   data() {
     return {
       cartCount: 0,
       profilePicture: null,
+      isError: false,
+      error: null
     };
   },
   computed: {
@@ -114,22 +118,43 @@ export default {
   },
   methods: {
     async handleLogout() {
-      await this.$store.dispatch('auth/logout');
-      await this.$router.push(`/`);
+      try {
+        await this.$store.dispatch('auth/logout');
+
+        this.error = null
+        this.isError = false
+
+        await this.$router.push(`/`);
+      } catch (err) {
+        this.error = err
+        this.isError = true
+      }
     },
     async fetchData() {
-      if (this.isLoggedIn && this.role === 'employee') {
-        await this.$store.dispatch('employee/cartCount', {
-          empId: this.$store.getters['auth/user'].empId,
-        });
-        this.cartCount = await this.$store.getters['employee/cartCount'];
-        await this.$store.dispatch('employee/fetchProfilePicture', {
-          empId: this.$store.getters['auth/user'].empId,
-        });
+      try {
+        if (this.isLoggedIn && this.role === 'employee') {
+          await this.$store.dispatch('employee/cartCount', {
+            empId: this.$store.getters['auth/user'].empId,
+          });
+          this.cartCount = await this.$store.getters['employee/cartCount'];
+          await this.$store.dispatch('employee/fetchProfilePicture', {
+            empId: this.$store.getters['auth/user'].empId,
+          });
+        }
+
+        this.error = null
+        this.isError = false
+      } catch (err) {
+        this.error = err
+        this.isError = true
+
       }
     },
   },
-  components: { RouterLink },
+  components: {
+    RouterLink,
+    ErrorToast
+  },
 };
 </script>
 

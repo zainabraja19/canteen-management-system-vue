@@ -25,5 +25,9 @@ export default {
     },
     totalOrders(state) {
         return state.totalOrders
+    },
+    errors(state) {
+        console.log(state);
+        return state.errors
     }
 }

@@ -3,7 +3,8 @@ const mongoose = require('mongoose')
 const menuSchema = mongoose.Schema({
     itemName: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     price: {
         type: Number,

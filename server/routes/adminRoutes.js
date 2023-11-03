@@ -15,9 +15,9 @@ router.get('/menu', async (req, res) => {
         const menu = await Menu.find({}).skip(skip).limit(perPage)
 
         // const filteredMenu = menu.skip(skip).limit(perPage)
-        res.status(200).json({ data: { totalItems, menu } })
+        res.status(200).json({ data: { totalItems, menu }, status: 200 })
     } catch (error) {
-        res.status(500).json({ data: null, error })
+        res.status(400).json({ data: null, error, status: 400 })
     }
 })
 
@@ -53,10 +53,12 @@ router.get('/orders', async (req, res) => {
                 .exec()
         }
 
-        res.status(200).json({ data: { orders, totalOrders } })
+        res.status(200).json({ data: { orders, totalOrders }, status: 200 })
+
+
     }
     catch (err) {
-        res.status(400).json({ data: null, error: err })
+        res.status(400).json({ data: null, error: err, status: 400 })
     }
 })
 
@@ -66,10 +68,13 @@ router.post('/item', async (req, res) => {
 
     try {
         await menuItem.save()
-        res.status(201).json({ data: "Added new item!" })
+
+        res.status(201).json({ data: "Added new item!", staus: 201 })
+
+
     } catch (e) {
         console.log(e)
-        res.status(400).json({ data: null, error: e })
+        res.status(400).json({ data: null, error: e, status: 400 })
     }
 })
 
@@ -79,7 +84,13 @@ router.patch('/item/:id', async (req, res) => {
         console.log(req.params.id, req.body);
         const updatedMenu = await Menu.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true })
         console.log(updatedMenu);
-    } catch (err) { }
+
+        res.status(200).json({ data: updatedMenu, status: 200 })
+
+
+    } catch (err) {
+        res.status(400).json({ data: null, error: err, status: 400 })
+    }
 })
 
 // Remove item
@@ -88,7 +99,7 @@ router.delete('/item/:id', async (req, res) => {
         const item = await Menu.findByIdAndDelete(req.params.id);
 
         if (!item) {
-            return res.status(404).json({ data: null, error: 'Item not found' });
+            return res.status(404).json({ data: null, error: 'Item not found', status: 404 });
         }
 
         // update the document and remove item
@@ -96,10 +107,12 @@ router.delete('/item/:id', async (req, res) => {
         // await Cart.deleteMany({ "items.item": req.params.id });
         // await Order.deleteMany({ "items.item": req.params.id });
 
-        res.status(200).json({ data: "Deleted item successfully" })
+        res.status(200).json({ data: "Deleted item successfully", status: 200 })
+
+
     } catch (e) {
         console.log(e)
-        res.status(500).json({ data: null, error: e })
+        res.status(400).json({ data: null, error: e, status: 400 })
     }
 })
 

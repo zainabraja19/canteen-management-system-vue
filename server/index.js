@@ -55,10 +55,10 @@ app.use(
 // Error handler
 app.use((err, req, res, next) => {
     if (err.message) {
-        return res.status(401).json({ data: null, error: err.message });
+        return res.status(401).json({ data: null, error: err.message, status: 401 });
     }
 
-    return res.status(500).json({ data: null, error: 'Internal Server Error' });
+    return res.status(500).json({ data: null, error: 'Internal Server Error', status: 500 });
 });
 
 app.listen(port, '0.0.0.0', () => {
