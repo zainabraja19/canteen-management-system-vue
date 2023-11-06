@@ -42,7 +42,6 @@ const router = createRouter({
 let autoLoginExecuted = false;
 
 router.beforeEach(async function (to) {
-    console.log(to);
     if (!autoLoginExecuted) {
         await store.dispatch('auth/autoLogin');
         autoLoginExecuted = true;
@@ -57,30 +56,22 @@ router.beforeEach(async function (to) {
 
     if (to.path === '/') {
         return redirectPath;
-
     }
-    console.log(to.path);
+
+    // Handle other route checks as needed
     if (to.meta.requiresUnauth) {
-        console.log(to.path);
-        // If the route is for unauthenticated users, allow access if the user is not authenticated
-        if (!isAuthenticated) {
-            // return true;
+        if (isAuthenticated) {
+            return `/${userRole === 'employee' ? 'user' : 'admin'}`;
         }
-    }
-
-    if (to.meta.requiresAuth) {
-        // If the route requires authentication, redirect to login if the user is not authenticated
+    } else if (to.meta.requiresAuth) {
         if (!isAuthenticated) {
             return '/login';
-        }
-
-        // Check if the user has the required role to access the route
-        const userRole = store.getters['auth/userRole'];
-        if (to.meta.role && to.meta.role !== userRole) {
+        } else if (to.meta.role && to.meta.role !== userRole) {
             return '/';
         }
     }
 
+    // If none of the above conditions are met, proceed with the route
     return true;
 });
 

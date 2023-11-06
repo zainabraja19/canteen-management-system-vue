@@ -13,11 +13,9 @@ passport.use(
         async (req, email, password, done) => {
             try {
                 const employee = new Employee(req.body)
-                console.log(employee);
                 await employee.save()
-                console.log(employee);
+
                 const emp = { ...employee.toObject() };
-                console.log(emp);
 
                 delete emp.password;
                 delete emp.profilePicture
@@ -26,9 +24,7 @@ passport.use(
 
                 return done(null, emp, { message: 'Registration Successfull' });
             } catch (error) {
-                console.log("here");
                 const err = Employee.handleError(error)
-                console.log(err);
                 return done({ message: err });
             }
         }))
@@ -55,7 +51,6 @@ passport.use(
 
                 return done(null, emp, { message: 'Logged in Successfully' });
             } catch (error) {
-                console.log(error);
                 return done(error);
             }
         }

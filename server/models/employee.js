@@ -51,24 +51,25 @@ const employeeSchema = mongoose.Schema({
     resume: {
         buffer: { type: Buffer },
         extension: { type: String },
-        mimeType: { type: String }
+        mimeType: { type: String },
+        originalName: { type: String }
     }
 })
 
 // Handle signup errors
 employeeSchema.statics.handleError = (error) => {
-    const errors = {}
+    let errors = null
 
     // Handle duplicate key error
     if (error.name === "MongoServerError" && error.code === 11000) {
         const key = Object.keys(error.keyPattern)[0];
-        errors[key] = `${key} already exists`
+        errors = `${key} already exists`
     }
 
     // Handle validation error
     if (error.name === "ValidationError" && error.errors) {
         Object.keys(error.errors).map(key => {
-            errors[key] = error.errors[key].message
+            errors = error.error.message
         })
     }
 

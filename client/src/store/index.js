@@ -9,6 +9,26 @@ const store = createStore({
         admin: adminModule,
         employee: employeeModule,
         auth: authModule
+    },
+    state: {
+        showToast: false,
+        toastMessage: null
+    },
+    mutations: {
+        setShowToast(state, payload) {
+            console.log(payload);
+            state.showToast = payload.showToast
+            state.toastMessage = payload.toastMessage
+        }
+    },
+    getters: {
+        showToast(state) {
+            return state.showToast
+        },
+        toastMessage(state) {
+            console.log(state);
+            return state.toastMessage
+        }
     }
 });
 

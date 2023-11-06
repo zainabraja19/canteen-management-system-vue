@@ -1,15 +1,15 @@
 <template>
   <error-toast v-if="isError" :error="error"></error-toast>
   <div v-if="isLoading" class="loading d-flex justify-content-center align-items-center mh-100">
-    <div class="spinner-grow text-secondary" style="width: 3rem; height: 3rem;" role="status">
+    <div class="spinner-grow text-secondary" style="width: 3rem; height: 3rem" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
-  <div v-else>
-    <div class="d-flex justify-content-between ">
+  <div v-else class="mx-5">
+    <div class="d-flex flex-column flex-sm-row fl justify-content-between">
       <h2>Orders</h2>
       <div>
-        <select class=" form-select" v-model="selectedOption" @change="handleFilterChange">
+        <select class="form-select" v-model="selectedOption" @change="handleFilterChange">
           <option value="all">All Orders</option>
           <option value="remaining">Remaining Orders</option>
           <option value="completed">Completed Orders</option>
@@ -18,7 +18,7 @@
     </div>
     <!-- <hr /> -->
     <div v-if="totalOrders > 0" class="table-responsive mt-1">
-      <div style="min-height: 450px;">
+      <div style="min-height: 450px">
         <table class="table text-center">
           <thead>
             <tr>
@@ -27,10 +27,13 @@
               <th scope="col">Name</th>
               <th scope="col">Phone</th>
               <th scope="col">Total</th>
-              <th scope="col">Order Date <i class="bi bi-arrow-down ms-2 text-secondary "
-                  @click="sortBy('orderDate')"></i>
+              <th scope="col">
+                Order Date
+                <i class="bi bi-arrow-down ms-2 text-secondary" @click="sortBy('orderDate')"></i>
               </th>
-              <th scope="col">Completed <i class="bi bi-arrow-down ms-2 text-secondary " @click="sortBy('completed')"></i>
+              <th scope="col">
+                Completed
+                <i class="bi bi-arrow-down ms-2 text-secondary" @click="sortBy('completed')"></i>
               </th>
               <th scope="col"></th>
             </tr>
@@ -53,12 +56,14 @@
           <template #next-button>
             <span>
               <i class="bi bi-chevron-right"></i>
-            </span>
-          </template></vue-awesome-paginate>
+            </span> </template></vue-awesome-paginate>
       </div>
     </div>
-    <div v-else class="fs-5">
-      <hr><strong>No orders remaining!</strong>
+    <div v-else>
+      <hr />
+      <div class="d-flex flex-column align-items-center justify-content-center mt-4 fs-5" style="min-height: 60vh">
+        <strong>No orders remaining!</strong>
+      </div>
     </div>
   </div>
 </template>
@@ -77,19 +82,19 @@ export default {
       selectedOption: 'all',
       isLoading: true,
       isError: false,
-      error: null
+      error: null,
       // sortBy: { orderDate: -1, completed: 1 }
     };
   },
   async mounted() {
-    this.fetchData()
+    this.fetchData();
   },
   computed: {
     computedOrders() {
       return this.$store.getters['admin/orders'];
     },
     computedTotalOrders() {
-      return this.$store.getters['admin/totalOrders']
+      return this.$store.getters['admin/totalOrders'];
     },
     statusClass() {
       return 'text-bg-success';
@@ -100,43 +105,46 @@ export default {
       this.orders = val;
     },
     computedTotalOrders(val) {
-      this.totalOrders = val
-    }
+      this.totalOrders = val;
+    },
   },
   methods: {
     changePage(newPage) {
-      this.isLoading = true
+      this.isLoading = true;
       this.currentPage = newPage;
-      this.fetchData()
+      this.fetchData();
     },
     async fetchData() {
-      try {
-        await this.$store.dispatch('admin/fetchOrders', { page: this.currentPage, filter: this.selectedOption, });
-        this.totalOrders = this.$store.getters['admin/totalOrders']
-        this.isLoading = false
+      const res = await this.$store.dispatch('admin/fetchOrders', {
+        page: this.currentPage,
+        filter: this.selectedOption,
+      });
 
-        this.error = null
-        this.isError = false
-      } catch (err) {
-        this.error = err
-        this.isError = true
+      if (res) {
+        this.isError = true;
+        this.error = res;
+      } else {
+        this.totalOrders = this.$store.getters['admin/totalOrders'];
+        this.error = null;
+        this.isError = false;
       }
+      this.isLoading = false;
+
     },
     handleFilterChange() {
-      this.fetchData()
+      this.fetchData();
     },
     sortBy(type) {
       console.log(type);
       // this.sortBy[type] =
-    }
+    },
   },
   components: {
     OrderDetails,
-    ErrorToast
+    ErrorToast,
   },
 };
 </script>
-
 
 <style>
 .pagination .pagination-container {

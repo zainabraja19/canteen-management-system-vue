@@ -13,11 +13,11 @@ router.get('/menu', async (req, res) => {
         // const totalOrders = await Order.find({}).count()
         const totalItems = await Menu.find({}).count()
         const menu = await Menu.find({}).skip(skip).limit(perPage)
-
         // const filteredMenu = menu.skip(skip).limit(perPage)
         res.status(200).json({ data: { totalItems, menu }, status: 200 })
     } catch (error) {
-        res.status(400).json({ data: null, error, status: 400 })
+        console.log(error);
+        res.status(400).json({ data: null, error: error.message, status: 400 })
     }
 })
 
@@ -32,21 +32,20 @@ router.get('/orders', async (req, res) => {
     let totalOrders;
     let orders;
     try {
-        console.log(req.query);
         if (filter === 'all') {
-            totalOrders = await Order.find({}).count()
+            totalOrders = await Order.find({ cancelled: false }).count()
             orders = await Order.find({}).sort({ completed: 1, orderDate: -1 }).skip(skip).limit(perPage)
                 .populate('employee', 'empId name phone')
                 .populate('items.item')
                 .exec()
         } else if (filter === 'remaining') {
-            totalOrders = await Order.find({ completed: false }).count()
+            totalOrders = await Order.find({ completed: false, cancelled: false }).count()
             orders = await Order.find({ completed: false }).skip(skip).limit(perPage)
                 .populate('employee', 'empId name phone')
                 .populate('items.item')
                 .exec()
         } else {
-            totalOrders = await Order.find({ completed: true }).count()
+            totalOrders = await Order.find({ completed: true, cancelled: false }).count()
             orders = await Order.find({ completed: true }).skip(skip).limit(perPage)
                 .populate('employee', 'empId name phone')
                 .populate('items.item')
@@ -54,11 +53,9 @@ router.get('/orders', async (req, res) => {
         }
 
         res.status(200).json({ data: { orders, totalOrders }, status: 200 })
-
-
     }
-    catch (err) {
-        res.status(400).json({ data: null, error: err, status: 400 })
+    catch (error) {
+        res.status(400).json({ data: null, error: error.message, status: 400 })
     }
 })
 
@@ -72,24 +69,20 @@ router.post('/item', async (req, res) => {
         res.status(201).json({ data: "Added new item!", staus: 201 })
 
 
-    } catch (e) {
-        console.log(e)
-        res.status(400).json({ data: null, error: e, status: 400 })
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({ data: null, error: error.message, status: 400 })
     }
 })
 
 // Edit item details
 router.patch('/item/:id', async (req, res) => {
     try {
-        console.log(req.params.id, req.body);
         const updatedMenu = await Menu.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true })
-        console.log(updatedMenu);
 
         res.status(200).json({ data: updatedMenu, status: 200 })
-
-
-    } catch (err) {
-        res.status(400).json({ data: null, error: err, status: 400 })
+    } catch (error) {
+        res.status(400).json({ data: null, error: error.message, status: 400 })
     }
 })
 
@@ -110,9 +103,9 @@ router.delete('/item/:id', async (req, res) => {
         res.status(200).json({ data: "Deleted item successfully", status: 200 })
 
 
-    } catch (e) {
-        console.log(e)
-        res.status(400).json({ data: null, error: e, status: 400 })
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({ data: null, error: error.message, status: 400 })
     }
 })
 

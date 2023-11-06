@@ -11,10 +11,8 @@ router.post('/signup',
         try {
             req.user.expiresIn = req.session.cookie._expires
             res.status(201).json({ data: req.user, status: 201 })
-        } catch (e) {
-            console.log(e);
-            const error = Employee.handleError(e)
-            res.status(400).json({ data: null, error, status: 400 })
+        } catch (error) {
+            res.status(400).json({ data: null, error: error.message, status: 400 })
         }
     })
 
@@ -26,8 +24,9 @@ router.post('/login',
         try {
             req.user.expiresIn = req.session.cookie._expires
             res.status(200).json({ data: req.user, status: 200 });
-        } catch (e) {
-            res.status(400).json({ data: null, error: e, status: 400 })
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({ data: null, error: error, status: 400 })
         }
     }
 );
@@ -35,11 +34,10 @@ router.post('/login',
 // User Auto Login
 router.get('/autoLogin', (req, res) => {
     try {
-        console.log(req.user, req.session);
         // req.user.expiresIn = req.session.cookie._expires
-        res.status(200).json({ data: req.user, status: 200 });
-    } catch (e) {
-        res.status(400).json({ data: null, error: e.message, status: 400 })
+        res.status(200).json({ data: req.user ? req.user : null, status: 200 });
+    } catch (error) {
+        res.status(400).json({ data: null, error: error.message, status: 400 })
     }
 })
 
@@ -54,8 +52,8 @@ router.get('/logout', async (req, res) => {
         });
 
         console.log(`-------> User Logged out`)
-    } catch (e) {
-        res.status(400).json({ data: null, error: e, status: 400 })
+    } catch (error) {
+        res.status(400).json({ data: null, error: error.message, status: 400 })
     }
 })
 

@@ -9,7 +9,10 @@
     <td>{{ formatDateTime(order.orderDate) }}</td>
     <td>
       <div v-if="role === 'employee'">
-        <span class="badge text-light" :class="{
+        <span v-if="order.cancelled" class="badge text-light p-2 text-bg-danger ">
+          Cancelled
+        </span>
+        <span v-else class="badge text-light p-2" :class="{
           'text-bg-success': order.completed,
           'text-bg-warning': !order.completed,
         }">{{ order.completed ? 'Completed' : 'Processing' }}</span>
@@ -18,12 +21,16 @@
         <!-- <div class="form-check form-switch d-flex justify-content-center"> -->
         <!-- <input class="form-check-input" type="checkbox" role="switch" data-on-text="Si" data-off-text="No"
           style="font-size: larger;" value="order.completed"> -->
-        <span class="badge text-light" :class="{
+        <span class="badge text-light p-2" :class="{
           'text-bg-success': order.completed,
           'text-bg-warning': !order.completed,
         }">{{ order.completed ? 'Completed' : 'Processing' }}</span>
         <!-- </div> -->
       </div>
+    </td>
+    <td v-if="role === 'employee'">
+      <button type="button" class="cancel-btn btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal"
+        @click="setSelectedOrder(order.orderId)">Cancel Order</button>
     </td>
     <td>
       <div :data-bs-target="'#orderDetails' + index">
@@ -56,6 +63,29 @@
       </div>
     </td>
   </tr>
+
+  <div class="modal fade" ref="my-modal" id="cancelOrderModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered bg-transparent ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cancelOrderModalLabel">Confirmation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to cancel this order?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+            @click="emitCancelOrder(this.selectedOrder)">
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -64,8 +94,17 @@ import { formatDateTime } from '../utils/FormatDate';
 
 export default {
   props: ['order', 'index', 'role'],
+  emits: ["cancelOrder"],
   data() {
-    return { showAccordion: false };
+    return {
+      showAccordion: false,
+      selectedOrder: null,
+    };
+  },
+  watch: {
+    selectedOrder(val) {
+      console.log(val);
+    }
   },
   methods: {
     formatPrice,
@@ -73,6 +112,28 @@ export default {
     toggleAccordion() {
       this.showAccordion = !this.showAccordion;
     },
+    setSelectedOrder(id) {
+      console.log(id);
+      this.selectedOrder = id
+      console.log(this.selectedOrder);
+    },
+    async emitCancelOrder() {
+      console.log("here", this.selectedOrder);
+      this.$emit('cancelOrder')
+    }
   },
 };
 </script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+
+td {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+}
+
+.cancel-btn.btn {
+  padding: 1px 10px
+}
+</style>

@@ -1,16 +1,16 @@
 <template>
   <error-toast v-if="isError" :error="error"></error-toast>
   <div v-if="isLoading" class="loading d-flex justify-content-center align-items-center mh-100">
-    <div class="spinner-grow text-secondary" style="width: 3rem; height: 3rem;" role="status">
+    <div class="spinner-grow text-secondary" style="width: 3rem; height: 3rem" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
-  <div v-else>
+  <div class="mx-5" v-else>
     <h2>Orders</h2>
     <!-- <hr /> -->
     <div v-if="totalOrders > 0" class="table-responsive mt-1">
-      <div style="min-height: 450px;">
-        <table class="table text-center">
+      <div style="min-height: 450px">
+        <table class="table text-center align-middle">
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -21,11 +21,13 @@
               <th scope="col">Order Date</th>
               <th scope="col">Status</th>
               <th scope="col"></th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
             <!-- <tr v-for="(order, index) in orders" :key="index"> -->
-            <OrderDetails :order="order" :index="index" role="employee" v-for="(order, index) in orders" :key="index">
+            <OrderDetails :order="order" :index="index" role="employee" v-for="(order, index) in orders" :key="index"
+              @cancelOrder="handleCancelOrder(id)">
             </OrderDetails>
             <!-- </tr> -->
           </tbody>
@@ -43,12 +45,15 @@
           <template #next-button>
             <span>
               <i class="bi bi-chevron-right"></i>
-            </span>
-          </template></vue-awesome-paginate>
+            </span> </template></vue-awesome-paginate>
       </div>
     </div>
     <div v-else class="fs-5">
-      <hr><strong>No orders remaining!</strong>
+      <hr />
+      <div class="d-flex flex-column align-items-center justify-content-center mt-4 fs-5" style="min-height: 60vh">
+        <strong>You have not placed any orders yet.</strong>
+        <router-link to="/"><button class="go-back btn mt-3">Return to menu</button></router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -65,55 +70,96 @@ export default {
       perPage: 10,
       isLoading: true,
       isError: false,
-      error: null
+      error: null,
     };
   },
   async mounted() {
-    this.fetchData()
+    this.fetchData();
   },
   computed: {
     computedOrders() {
       return this.$store.getters['employee/employeeOrders'];
     },
     computedTotalOrders() {
-      return this.$store.getters['employee/totalOrders']
+      return this.$store.getters['employee/totalOrders'];
     },
   },
   watch: {
     computedOrders(val) {
-      console.log(val);
       this.orders = val;
-      this.isLoading = false
+      this.isLoading = false;
     },
     computedTotalOrders(val) {
-      this.totalOrders = val
+      this.totalOrders = val;
     },
   },
   methods: {
     changePage(newPage) {
-      this.isLoading = true
+      this.isLoading = true;
       this.currentPage = newPage;
-      this.fetchData()
+      this.fetchData();
     },
     async fetchData() {
-      try {
-        await this.$store.dispatch('employee/fetchEmployeeOrders', {
-          empId: this.$store.getters['auth/user'].empId,
-          page: this.currentPage
-        });
-        this.totalOrders = this.$store.getters['employee/totalOrders']
+      const res = await this.$store.dispatch('employee/fetchEmployeeOrders', {
+        empId: this.$store.getters['auth/user'].empId,
+        page: this.currentPage,
+      });
+      this.totalOrders = this.$store.getters['employee/totalOrders'];
 
-        this.error = null
-        this.isError = false
-      } catch (err) {
-        this.error = err
-        this.isError = true
+      if (res) {
+        this.isError = true;
+        this.error = res;
+      } else {
+        this.error = null;
+        this.isError = false;
       }
     },
+    async handleCancelOrder(id) {
+      console.log("in");
+      await this.$store.commit('setShowToast', { showToast: false, toastMessage: null })
+      console.log((id));
+      const res = await this.$store.dispatch('employee/cancelOrder', {
+        empId: this.$store.getters['auth/user'].empId,
+        orderId: id
+      })
+
+      if (res) {
+        this.isError = true;
+        this.error = res;
+      } else {
+        await this.$store.commit('setShowToast', { showToast: true, toastMessage: "Your order has been cancelled." })
+
+        this.error = null;
+        this.isError = false;
+      }
+
+      this.fetchData()
+    }
   },
   components: {
     OrderDetails,
-    ErrorToast
+    ErrorToast,
   },
 };
 </script>
+
+<style>
+.go-back.btn {
+  font-size: 14px;
+  text-transform: uppercase;
+  background: #006363;
+  padding: 15px 30px;
+  border-radius: 40px;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0px 4px 15px -5px rgba(0, 0, 0, 0.3);
+}
+
+.go-back.btn:active,
+.go-back.btn:hover {
+  border-color: #006363 !important;
+  color: #006363 !important;
+  background-color: white !important;
+  transition: background-color 0.5s;
+}
+</style>

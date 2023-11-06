@@ -2,8 +2,8 @@
     <div class="filepond-container">
         <file-pond name="test" ref="pond" label-idle="Browse or drop files here..." :allow-multiple="false"
             :allowDrop="true" :checkValidity="true" :server="server" class-name="my-pond" :instant-upload="false"
-            :itemInsertInterval="itemInsertInterval" accepted-file-types="image/jpeg, image/png" maxFileSize="2MB"
-            :labelFileProcessingError="uploadError" @init="handleFilePondInit" />
+            :itemInsertInterval="itemInsertInterval" accepted-file-types="image/jpeg, image/jpg,image/png" maxFileSize="2MB"
+            :labelFileProcessingError="uploadError" @init="handleFilePondInit" @addfilestart="handleWarning" />
     </div>
 </template>
 
@@ -41,6 +41,7 @@ export default {
             server: {
                 // chunkSize: '1000000',
                 process: async (fieldName, file, metadata, load, error, progress) => {
+                    await this.$store.commit('setShowToast', { showToast: false, toastMessage: null })
                     const pond = this.$refs.pond;
 
                     const image = pond.getFile();
@@ -49,51 +50,53 @@ export default {
                     const formData = new FormData();
                     formData.append('profilePicture', new Blob([image.file]), image.file.name);
 
-                    await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${this.$store.getters['auth/user'].empId}/profilePicture`, {
-                        method: 'POST',
-                        credentials: 'include',
-                        body: formData,
-                        onUploadProgress: (e) => {
-                            progress(e.lengthComputable, e.loaded, e.total);
-                        },
+                    const empId = await this.$store.getters['auth/user'].empId
+                    try {
+                        const res = await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${empId}/profilePicture`, {
+                            method: 'POST',
+                            credentials: 'include',
+                            body: formData,
+                            onUploadProgress: (e) => {
+                                progress(e.lengthComputable, e.loaded, e.total);
+                            },
 
-                    })
-                        .then((response) => response.json())
-                        .then(async (data) => {
-                            await this.$store.dispatch('employee/fetchProfilePicture', {
-                                empId: this.$store.getters['auth/user'].empId,
-                            });
-                            load(data.file);
                         })
-                        .catch((err) => {
-                            this.uploadError = err
-                            error(err)
-                            console.log(err);
+
+                        const response = await res.json()
+
+                        if (!response.data && response.error) {
+                            throw { message: response.error, status: response.status }
+                        }
+                        await this.$store.dispatch('employee/fetchProfilePicture', {
+                            empId,
                         });
+                        load(response.data.file);
+                        // this.$refs.pond.destroy()
+                        await this.$store.commit('setShowToast', { showToast: true, toastMessage: `Profile picture uploaded.` })
+                    } catch (err) {
+                        this.uploadError = err.message
+                        error(err)
+                        console.log(err);
+                    }
                 },
                 revert: (src, load) => {
                     load();
-                }
+                },
+
             },
 
         };
     },
-    // watch: {
-    //     uploadType: {
-    //         handler(val) {
-    //             this.pondOptions = Options(val, this.$refs.pond)
-    //         },
-    //         // immediate: true
-    //     }
-    // },
-    // created() {
-    //     // Set options using v-bind:options in the template
-    //     setOptions(this.pondOptions);
-    // },
     methods: {
-        handleFilePondInit: function () {
+        handleFilePondInit() {
             console.log('FilePond has initialized');
         },
+        handleWarning() {
+            console.log("warning");
+        },
+        handleError() {
+            console.log("error");
+        }
     },
     components: {
         FilePond,

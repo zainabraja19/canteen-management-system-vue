@@ -1,59 +1,69 @@
 <template>
   <the-header v-if="isLoggedIn"></the-header>
-  <!-- <transition name="fade" mode="out-in" :duration="transitionDuration"> -->
-  <!-- <order-placed v-if="isLoggedIn && orderPlaced"></order-placed> -->
-  <!-- </transition> -->
-  <!-- <div class="main-container"> -->
-  <div class="container-fluid px-5" style="min-height: 80vh;">
-    <!-- <div class="row"> -->
-    <!-- <div class="col-md-12 w-100"> -->
+  <success-toast v-if="showToast" :toastMessage="toastMessage"></success-toast>
+  <error-toast v-if="isError" :error="error"></error-toast>
+  <div class="container-fluid" style="min-height: 80vh;">
     <router-view></router-view>
-    <!-- </div> -->
-    <!-- </div> -->
   </div>
-  <!-- </div> -->
 </template>
 
 <script>
 import TheHeader from './components/TheHeader.vue';
-// import { Toast } from 'bootstrap';
-// import OrderPlaced from './components/OrderPlacedToast.vue';
+import ErrorToast from './components/ErrorToast.vue';
+import SuccessToast from './components/SuccessToast.vue';
+
 export default {
   components: {
     TheHeader,
-    // OrderPlaced,
+    ErrorToast,
+    SuccessToast
   },
   data() {
     return {
-      // orderPlaced: false,
       error: null,
-      transitionDuration: '1ms',
+      isError: false,
+      showToast: false,
+      toastMessage: null
     };
   },
   computed: {
     didAutoLogout() {
       return this.$store.getters['auth/didAutoLogout'];
     },
-    // isOrderPlaced() {
-    //   return this.$store.getters['employee/orderPlaced'];
-    // },
     isLoggedIn() {
       return this.$store.getters['auth/isAuthenticated'];
     },
+    isShowToast() {
+      const toast = {
+        showToast: this.$store.getters['showToast'],
+        toastMessage: this.$store.getters['toastMessage']
+      }
+
+      return toast;
+    },
   },
-  created() {
-    this.$store.dispatch('auth/autoLogin');
+  async created() {
+    const res = await this.$store.dispatch('auth/autoLogin');
+    if (res) {
+      this.isError = true;
+      this.error = res;
+    } else {
+      this.error = null;
+      this.isError = false;
+    }
   },
   watch: {
-    didAutoLogout(curValue, oldValue) {
-      if (curValue && curValue !== oldValue) {
-
-        this.$router.push('/login');
+    isLoggedIn(val) {
+      if (!val) {
+        this.$router.push('/login')
       }
     },
-    // isOrderPlaced(newVal) {
-    //   this.orderPlaced = newVal;
-    // },
+    isShowToast: {
+      handler(newVal) {
+        this.showToast = newVal.showToast;
+        this.toastMessage = newVal.toastMessage
+      }
+    },
   },
 };
 </script>

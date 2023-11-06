@@ -40,6 +40,10 @@ const orderSchema = mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    cancelled: {
+        type: Boolean,
+        default: false
+    },
     orderDate: {
         type: Date,
         default: Date.now, // Use a function reference for default value
@@ -54,7 +58,6 @@ orderSchema.statics.getNextOrderId = async function () {
 
 // Pre-save hook to set orderId before saving the document
 orderSchema.pre('save', async function (next) {
-    console.log(this);
     if (!this.orderId) {
         this.orderId = await this.constructor.getNextOrderId();
     }

@@ -1,16 +1,15 @@
 <template>
   <error-toast v-if="isError" :error="error"></error-toast>
   <div v-if="isLoading" class="loading d-flex justify-content-center align-items-center mh-100">
-    <div class="spinner-grow text-secondary" style="width: 3rem; height: 3rem;" role="status">
+    <div class="spinner-grow text-secondary" style="width: 3rem; height: 3rem" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
-  <div v-else>
-
+  <div v-else class="mx-5">
     <h2>Menu Items</h2>
     <!-- <hr /> -->
     <div class="table-responsive mt-4" v-if="totalMenuItems > 0">
-      <div style="min-height: 450px;">
+      <div style="min-height: 450px">
         <table class="table text-center table-hover">
           <thead>
             <tr>
@@ -23,7 +22,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in   items  " :key="index">
+            <tr v-for="(item, index) in items" :key="index">
               <th scope="row">{{ index + 1 }}</th>
               <td>{{ item.itemName }}</td>
               <td>{{ formatPrice(+item.price) }}</td>
@@ -69,19 +68,19 @@
       <!-- </div> -->
     </div>
     <div v-else>
-      <span class="me-2 fs-5">
-        <hr>
-        <strong>
-          There are no items present in the menu!
-        </strong>
-      </span>
-      <span class="ms-2">
-        <router-link to="/admin/addItem">
-          <button type="button" class="btn btn-dark">
-            Click here to add
-          </button>
-        </router-link>
-      </span>
+      <hr />
+      <div class="d-flex flex-column align-items-center justify-content-center mt-4" style="min-height: 60vh">
+        <span class="me-2 fs-5">
+          <strong> There are no items present in the menu! </strong>
+        </span>
+        <span class="ms-2 mt-3">
+          <router-link to="/admin/addItem">
+            <button type="button" class="add-new-item btn">
+              Click here to add
+            </button>
+          </router-link>
+        </span>
+      </div>
     </div>
     <!-- Modal -->
     <!-- <MenuModalEdit v-if="modalVisible" :item="selectedItem"></MenuModalEdit> -->
@@ -89,7 +88,9 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Edit Item Details</h5>
+            <h5 class="modal-title" id="exampleModalLabel">
+              Edit Item Details
+            </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -103,20 +104,25 @@
                 <label for="price" class="form-label"><strong>Price</strong></label>
                 <input type="number" class="form-control" id="price" name="price" v-model.trim="price" min="0" max="1000"
                   @input="validatePrice" />
-                <p class="text-danger mt-2 mb-0" v-if="!isValidPrice">Price must be a valid number between 0 and
-                  1000.</p>
+                <p class="text-danger mt-2 mb-0" v-if="!isValidPrice">
+                  Price must be a valid number between 0 and 1000.
+                </p>
               </div>
               <div class="col-12">
                 <label for="itemName" class="form-label"><strong>Available</strong></label>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="isAvailable" id="isAvailable1" v-model="isAvailable"
                     value="true" />
-                  <label class="form-check-label" for="isAvailable1"> Yes </label>
+                  <label class="form-check-label" for="isAvailable1">
+                    Yes
+                  </label>
                 </div>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="isAvailable" id="isAvailable2" v-model="isAvailable"
                     value="false" />
-                  <label class="form-check-label" for="isAvailable2"> No </label>
+                  <label class="form-check-label" for="isAvailable2">
+                    No
+                  </label>
                 </div>
               </div>
               <div class="modal-footer">
@@ -188,7 +194,7 @@ export default {
       isValidPrice: true,
       isLoading: true,
       isError: false,
-      error: null
+      error: null,
     };
   },
   computed: {
@@ -201,16 +207,16 @@ export default {
       },
     },
     computedTotalMenuItems() {
-      return this.$store.getters['admin/totalMenuItems']
+      return this.$store.getters['admin/totalMenuItems'];
     },
   },
   watch: {
     computedTotalMenuItems(val) {
-      this.totalMenuItems = val
-    }
+      this.totalMenuItems = val;
+    },
   },
   async mounted() {
-    this.fetchData()
+    this.fetchData();
     new Tooltip(document.body, {
       selector: "[data-bs-toggle='tooltip']",
     });
@@ -221,14 +227,14 @@ export default {
   methods: {
     formatPrice,
     changePage(newPage) {
-      this.isLoading = true
+      this.isLoading = true;
       this.currentPage = newPage;
-      this.fetchData()
+      this.fetchData();
     },
     validatePrice() {
       if (this.price === '') {
-        this.isValidPrice = true
-        return
+        this.isValidPrice = true;
+        return;
       }
       const pattern = /^[0-9]+\.?\d*$/;
       this.isValidPrice = pattern.test(this.price);
@@ -236,23 +242,28 @@ export default {
       if (this.isValidPrice) {
         const numericPrice = parseFloat(this.price);
         if (numericPrice < 0 || numericPrice > 1000) {
-          this.isValidPrice = false
+          this.isValidPrice = false;
         }
       }
     },
     async fetchData() {
-      try {
-        await this.$store.dispatch('admin/fetchMenu', { page: this.currentPage });
-        this.items = await this.$store.getters['admin/menu'];
-        this.totalMenuItems = await this.$store.getters['admin/totalMenuItems']
-        this.isLoading = false
+      const res = await this.$store.dispatch('admin/fetchMenu', {
+        page: this.currentPage,
+      });
 
-        this.error = null
-        this.isError = false
-      } catch (err) {
-        this.error = err
-        this.isError = true
+      if (res) {
+        this.isError = true;
+        this.error = res;
+      } else {
+
+        this.items = await this.$store.getters['admin/menu'];
+        this.totalMenuItems = await this.$store.getters['admin/totalMenuItems'];
+
+        this.error = null;
+        this.isError = false;
       }
+      this.isLoading = false;
+
     },
     setSelectedItem(item) {
       this.modalVisible = !this.modalVisible;
@@ -262,7 +273,7 @@ export default {
       this.isAvailable = item.isAvailable || false;
     },
     setSelectedItemId(id) {
-      this.selectedItemId = id
+      this.selectedItemId = id;
     },
     async handleEdit(id) {
       const newData = {};
@@ -277,21 +288,22 @@ export default {
         this.isAvailable = this.isAvailable === 'true' ? true : false;
         newData['isAvailable'] = this.isAvailable;
       }
-      try {
 
-        if (Object.keys(newData).length > 0)
-          this.$store.dispatch('admin/editItem', {
-            id,
-            newData,
-          });
-
-        this.error = null
-        this.isError = false
-      } catch (err) {
-        this.error = err
-        this.isError = true
+      if (Object.keys(newData).length > 0) {
+        const res = await this.$store.dispatch('admin/editItem', {
+          id,
+          newData,
+        });
+        if (res) {
+          this.isError = true;
+          this.error = res;
+        } else {
+          this.error = null;
+          this.isError = false;
+          this.fetchData();
+        }
       }
-      this.fetchData()
+
     },
     // async handleDelete() {
     //   // var toast = new Toast(this.$refs.el)
@@ -304,7 +316,7 @@ export default {
     // }
   },
   components: {
-    ErrorToast
+    ErrorToast,
   },
 };
 </script>
@@ -312,30 +324,28 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap');
 
-.card-title,
-.item-price {
-  font-family: 'Oswald', sans-serif;
-  text-transform: uppercase;
-}
-
-.add-to-cart {
-  opacity: 0.85;
-}
-
-.add-to-cart:hover {
-  background-color: #000;
-  opacity: 1;
-  transition: background-color 0.7s;
-}
-
-.add-to-cart:active {
-  transition: transform 0.6s;
-  transform: scale(0.95);
-}
-
 .form-check-input:checked {
   background-color: #198754;
   border-color: #198754;
+}
+
+.add-new-item {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  background: #006363;
+  padding: 15px 30px;
+  border-radius: 40px;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0px 4px 15px -5px rgba(0, 0, 0, 0.3);
+}
+
+.add-new-item:active,
+.add-new-item:hover {
+  border-color: #006363 !important;
+  color: #006363 !important;
+  background-color: white !important;
+  transition: background-color 0.5s;
 }
 
 /* .toast {

@@ -83,7 +83,7 @@ export default {
       cartCount: 0,
       profilePicture: null,
       isError: false,
-      error: null
+      error: null,
     };
   },
   computed: {
@@ -118,47 +118,53 @@ export default {
   },
   methods: {
     async handleLogout() {
-      try {
-        await this.$store.dispatch('auth/logout');
+      const res = await this.$store.dispatch('auth/logout');
 
-        this.error = null
-        this.isError = false
+      if (res) {
+        this.isError = true;
+        this.error = res;
+      } else {
+        this.error = null;
+        this.isError = false;
 
         await this.$router.push(`/`);
-      } catch (err) {
-        this.error = err
-        this.isError = true
       }
     },
     async fetchData() {
-      try {
-        if (this.isLoggedIn && this.role === 'employee') {
-          await this.$store.dispatch('employee/cartCount', {
-            empId: this.$store.getters['auth/user'].empId,
-          });
-          this.cartCount = await this.$store.getters['employee/cartCount'];
-          await this.$store.dispatch('employee/fetchProfilePicture', {
-            empId: this.$store.getters['auth/user'].empId,
-          });
+      if (this.isLoggedIn && this.role === 'employee') {
+        const cartCount = await this.$store.dispatch('employee/cartCount', {
+          empId: this.$store.getters['auth/user'].empId,
+        });
+        this.cartCount = await this.$store.getters['employee/cartCount'];
+        const profile = await this.$store.dispatch('employee/fetchProfilePicture', {
+          empId: this.$store.getters['auth/user'].empId,
+        });
+
+        if (cartCount) {
+          this.isError = true;
+          this.error = cartCount;
+        } else if (profile) {
+          this.isError = true;
+          this.error = profile;
+        } else {
+          this.error = null;
+          this.isError = false;
         }
-
-        this.error = null
-        this.isError = false
-      } catch (err) {
-        this.error = err
-        this.isError = true
-
       }
     },
   },
   components: {
     RouterLink,
-    ErrorToast
+    ErrorToast,
   },
 };
 </script>
 
 <style scoped>
+.navbar {
+  text-transform: uppercase;
+}
+
 .nav-profile {
   width: 45px;
   height: 45px;

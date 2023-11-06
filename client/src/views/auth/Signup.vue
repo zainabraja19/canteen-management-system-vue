@@ -1,8 +1,9 @@
 <template>
+  <error-toast class="mt-4" v-if="isError" :error="error"></error-toast>
   <div class="auth-container d-flex justify-content-center align-items-center">
     <div class="row">
       <div class="col-12 d-flex justify-content-center align-items-center">
-        <div class="card m-4 p-4 col-xl-4 col-lg-5 col-md-8 col-12 ">
+        <div class="card m-4 p-4 col-xl-4 col-lg-5 col-md-8 col-12">
           <h4 class="text-center fw-bold">SIGNUP</h4>
           <div class="card-body">
             <form class="row g-3" @submit.prevent="onSubmit()">
@@ -10,32 +11,32 @@
                 <label for="empId" class="form-label">Employee ID <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="empId" name="empId" v-model.trim="empId"
                   @change="handleValidations" />
-                <div class="text-danger mt-2" v-if="error.empId" style="text-transform: capitalize">
-                  <i class="bi bi-info-circle"></i> {{ error.empId }}
+                <div class="text-danger mt-2" v-if="fieldErrors.empId" style="text-transform: capitalize">
+                  <i class="bi bi-info-circle"></i> {{ fieldErrors.empId }}
                 </div>
               </div>
               <div class="col-12">
                 <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="name" name="name" v-model.trim="name"
                   @change="handleValidations" />
-                <div class="text-danger mt-2" v-if="error.name" style="text-transform: capitalize">
-                  <i class="bi bi-info-circle"></i> {{ error.name }}
+                <div class="text-danger mt-2" v-if="fieldErrors.name" style="text-transform: capitalize">
+                  <i class="bi bi-info-circle"></i> {{ fieldErrors.name }}
                 </div>
               </div>
               <div class="col-12">
                 <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                 <input type="" class="form-control" id="email" name="email" v-model.trim="email" email
                   @change="handleValidations" />
-                <div class="text-danger mt-2" v-if="error.email" style="text-transform: capitalize">
-                  <i class="bi bi-info-circle"></i> {{ error.email }}
+                <div class="text-danger mt-2" v-if="fieldErrors.email" style="text-transform: capitalize">
+                  <i class="bi bi-info-circle"></i> {{ fieldErrors.email }}
                 </div>
               </div>
               <div class="col-12">
                 <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="phone" name="phone" v-model.trim="phone" maxlength="10"
                   @change="handleValidations" />
-                <div class="text-danger mt-2" v-if="error.phone" style="text-transform: capitalize">
-                  <i class="bi bi-info-circle"></i> {{ error.phone }}
+                <div class="text-danger mt-2" v-if="fieldErrors.phone" style="text-transform: capitalize">
+                  <i class="bi bi-info-circle"></i> {{ fieldErrors.phone }}
                 </div>
               </div>
               <div class="col-12">
@@ -50,12 +51,12 @@
                     }" @click="toggleShow"></i>
                   </span>
                 </div>
-                <div class="text-danger mt-2" v-if="error.password" style="text-transform: capitalize">
-                  <i class="bi bi-info-circle"></i> {{ error.password }}
+                <div class="text-danger mt-2" v-if="fieldErrors.password" style="text-transform: capitalize">
+                  <i class="bi bi-info-circle"></i> {{ fieldErrors.password }}
                 </div>
               </div>
               <div class="col-12 d-grid mt-4">
-                <button type="submit" class="btn authButton btn text-light" :disabled="!formIsValid">
+                <button type="submit" class="authButton btn text-light" :disabled="!formIsValid">
                   <div v-if="isLoading">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     <span class="visually-hidden">Loading...</span>
@@ -78,6 +79,7 @@
 
 <script>
 import { Validator } from '../../utils/Validator';
+import ErrorToast from '../../components/ErrorToast.vue';
 
 export default {
   data() {
@@ -88,8 +90,10 @@ export default {
       phone: '',
       password: '',
       showPassword: false,
-      error: {},
-      isLoading: false
+      fieldErrors: {},
+      isError: false,
+      error: null,
+      isLoading: false,
     };
   },
   computed: {
@@ -103,11 +107,11 @@ export default {
       ) {
         return false;
       } else if (
-        !this.error.empId &&
-        !this.error.name &&
-        !this.error.email &&
-        !this.error.phone &&
-        !this.error.password
+        !this.fieldErrors.empId &&
+        !this.fieldErrors.name &&
+        !this.fieldErrors.email &&
+        !this.fieldErrors.phone &&
+        !this.fieldErrors.password
       ) {
         return true;
       }
@@ -122,32 +126,40 @@ export default {
       this.showPassword = !this.showPassword;
     },
     async onSubmit() {
-      this.isLoading = true
+      this.isLoading = true;
 
-      try {
-        const actionPayload = {
-          empId: this.empId,
-          name: this.name,
-          email: this.email,
-          phone: this.phone,
-          password: this.password,
-        };
-        await this.$store.dispatch('auth/signup', actionPayload);
+      const actionPayload = {
+        empId: this.empId,
+        name: this.name,
+        email: this.email,
+        phone: this.phone,
+        password: this.password,
+      };
+      const res = await this.$store.dispatch('auth/signup', actionPayload);
 
+      if (res) {
+        this.isLoading = false;
+        this.isError = true;
+        this.error = res;
+        this.fieldErrors = res;
+      } else {
         if (this.$store.getters['auth/isAuthenticated']) {
-          this.isLoading = false
+          this.isLoading = false;
         }
 
+        this.error = null;
+        this.isError = false;
+
         this.$router.push(`/`);
-      } catch (err) {
-        this.isLoading = false
-        this.error = err.error;
       }
     },
     handleValidations(event) {
-      const error = Validator(event.target.name, event.target.value);
-      this.error[event.target.name] = error[event.target.name];
+      const fieldErrors = Validator(event.target.name, event.target.value);
+      this.fieldErrors[event.target.name] = fieldErrors[event.target.name];
     },
   },
+  components: {
+    ErrorToast
+  }
 };
 </script>

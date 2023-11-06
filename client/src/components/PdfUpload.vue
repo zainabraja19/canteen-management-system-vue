@@ -1,10 +1,10 @@
 <template>
     <div>
         <file-pond name="test" ref="pond" label-idle="Browse or drop files here..." :allowDrop="true"
-            :itemInsertInterval="1" :allow-multiple="false" :server="server"
-            acceptedFileTypes="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            :itemInsertInterval="itemInsertInterval" :checkValidity="true" :allow-multiple="false" :server="server"
+            accepted-file-types="application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             :instant-upload="false" iconRetry="false" maxFileSize="5MB" :labelFileProcessingError="uploadError"
-            fileValidateTypeLabelExpectedTypes="Expects .pdf/.docx files" />
+            fileValidateTypeLabelExpectedTypes="Expects .pdf/.docx files" @init="handleFilePondInit" />
     </div>
 </template>
 
@@ -38,9 +38,11 @@ export default {
         return {
             imageUrl: '',
             uploadError: '',
+            itemInsertInterval: 0,
             server: {
                 // chunkSize: '1000000',
                 process: async (fieldName, file, metadata, load, error, progress) => {
+                    await this.$store.commit('setShowToast', { showToast: false, toastMessage: null })
                     const pond = this.$refs.pond;
 
                     const resume = pond.getFile();
@@ -49,27 +51,31 @@ export default {
                     const formData = new FormData();
                     formData.append('resume', new Blob([resume.file]), resume.file.name);
 
-                    await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${this.$store.getters['auth/user'].empId}/resume`, {
-                        method: 'POST',
-                        credentials: 'include',
-                        body: formData,
-                        onUploadProgress: (e) => {
-                            progress(e.lengthComputable, e.loaded, e.total);
-                        },
+                    try {
+                        const res = await fetch(`${process.env.VUE_APP_IP_ADDRESS}/employee/${this.$store.getters['auth/user'].empId}/resume`, {
+                            method: 'POST',
+                            credentials: 'include',
+                            body: formData,
+                            onUploadProgress: (e) => {
+                                progress(e.lengthComputable, e.loaded, e.total);
+                            },
 
-                    })
-                        .then((response) => response.json())
-                        .then(async (data) => {
-                            await this.$store.dispatch('employee/fetchResume', {
-                                empId: this.$store.getters['auth/user'].empId,
-                            });
-                            load(data.file);
                         })
-                        .catch((err) => {
-                            this.uploadError = err
-                            error(err)
-                            console.log(err);
+                        const response = await res.json()
+
+                        if (!response.data && response.error) {
+                            throw { message: response.error, status: response.status }
+                        }
+                        await this.$store.dispatch('employee/fetchResume', {
+                            empId: this.$store.getters['auth/user'].empId,
                         });
+                        load(response.data.file);
+                        await this.$store.commit('setShowToast', { showToast: true, toastMessage: `Resume uploaded.` })
+                    } catch (err) {
+                        this.uploadError = err.message
+                        error(err)
+                        console.log(err);
+                    }
                 },
                 revert: (src, load) => {
                     load();
@@ -78,28 +84,32 @@ export default {
 
         };
     },
-    // watch: {
-    //     uploadType: {
-    //         handler(val) {
-    //             this.pondOptions = Options(val, this.$refs.pond)
-    //         },
-    //         // immediate: true
-    //     }
-    // },
-    // created() {
-    //     // Set options using v-bind:options in the template
-    //     setOptions(this.pondOptions);
-    // },
+    methods: {
+        handleFilePondInit: function () {
+            console.log('FilePond has initialized');
+        },
+    },
     components: {
         FilePond,
     },
-    methods: {
-        removeFile() {
-            const buttonElement = document.querySelector('button[type="button"]');
-            buttonElement.addEventListener("click", () => {
-                this.$refs.pond.removeFiles();
-            });
-        }
-    },
 };
 </script>
+
+<style>
+.filepond--root,
+.filepond--root .filepond--drop-label {
+    height: 200px;
+}
+
+.filepond--panel-root,
+.filepond--data {
+    height: 200px;
+}
+
+
+/* 
+.filepond--panel-root {
+    background-color: transparent;
+    border: 2px solid #2c3340;
+} */
+</style>
