@@ -20,7 +20,7 @@
               <th scope="col">Total</th>
               <th scope="col">Order Date</th>
               <th scope="col">Status</th>
-              <th scope="col"></th>
+              <!-- <th scope="col"></th> -->
               <th scope="col"></th>
             </tr>
           </thead>
@@ -143,7 +143,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .go-back.btn {
   font-size: 14px;
   text-transform: uppercase;

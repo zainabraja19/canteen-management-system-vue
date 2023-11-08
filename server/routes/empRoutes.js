@@ -6,6 +6,8 @@ const Order = require('../models/orders')
 const multer = require('multer')
 const nodemailer = require('nodemailer');
 const FileType = require('file-type');
+const { createInvoice } = require("../utils/invoice")
+const fs = require("fs");
 var detect = require('detect-file-type');
 require('dotenv').config()
 
@@ -415,7 +417,7 @@ router.post("/:empId/order", async (req, res) => {
 
         await Cart.findOneAndDelete({ employee: req.params.empId })
 
-        res.status(200).json({ data: order, status: 200 })
+        res.status(200).json({ data: { orderId: order.orderId }, status: 200 })
 
     } catch (error) {
         res.status(400).json({ data: null, error: error.message, status: 400 });
@@ -444,12 +446,90 @@ router.get('/:empId/order', async (req, res) => {
 })
 
 // Cancel Order
-router.patch('/:empId/order', async (req, res) => {
+router.patch('/:empId/order/:orderId', async (req, res) => {
     try {
         console.log("req", req.body);
-        await Employee.findOneAndUpdate({ empId: req.params.empId, orderId: req.body.orderId }, { cancelled: true })
+        await Employee.findOneAndUpdate({ empId: req.params.empId, orderId: req.params.orderId }, { cancelled: true })
 
         res.status(200).json({ data: "Order cancelled.", status: 200 })
+    } catch (error) {
+        res.status(400).json({ data: null, error: error.message, status: 400 })
+    }
+})
+
+router.get('/:empId/order/:orderId/generateInvoice', async (req, res) => {
+    try {
+        // {
+        //   _id: new ObjectId("654b586ea5fe7cdc492c46fc"),
+        //   employee: {
+        //     _id: new ObjectId("6548bdc92c0e8a046aca1168"),
+        //     empId: 'A624',
+        //     name: 'Zainab Raja'
+        //   },
+        //   items: [
+        //             {
+        //                 item: {
+        //                     _id: new ObjectId("65448db4d04fb29532e52328"),
+        //                     itemName: 'Milkshake',
+        //                     price: 20,
+        //                     isAvailable: true,
+        //                     __v: 0
+        //                 },
+        //                 quantity: 1,
+        //                 _id: new ObjectId("654b58edc330c5f3f28ca10f")
+        //             }
+        //         ],
+        //   totalAmount: 120,
+        //   completed: false,
+        //   cancelled: false,
+        //   orderDate: 2023-11-08T09:44:14.627Z,
+        //   orderId: 12,
+        //   __v: 0
+        // }
+        const { empId, orderId } = req.params
+        const employee = await Employee.findOne({ empId: req.params.empId })
+        console.log(empId, orderId);
+        const order = await Order.findOne({ employee: employee._id, orderId: +orderId })
+            .populate('employee', 'empId name')
+            .populate('items.item')
+
+        console.log(order);
+        console.log(order.items);
+        const invoice = {
+            shipping: {
+                name: 'John Doe',
+                address: '1234 Main Street',
+                city: 'San Francisco',
+                state: 'CA',
+                country: 'US',
+                postal_code: 94111,
+            },
+            items: [
+                {
+                    item: 'TC 100',
+                    description: 'Toner Cartridge',
+                    quantity: 2,
+                    amount: 44,
+                },
+                {
+                    item: 'USB_EXT',
+                    description: 'USB Cable Extender',
+                    quantity: 1,
+                    amount: 55,
+                },
+            ],
+            subtotal: 8000,
+            paid: 0,
+            invoice_nr: 1234,
+        };
+        const pdf = createInvoice(order, 'invoice.pdf');
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline; filename="invoice.pdf"');
+
+        pdf.pipe(res);
+        pdf.end()
+        // res.status(200).json({ data: "Generated", status: 200 })
     } catch (error) {
         res.status(400).json({ data: null, error: error.message, status: 400 })
     }

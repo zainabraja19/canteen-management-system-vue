@@ -2,7 +2,7 @@
   <error-toast v-if="isError" :error="error"></error-toast>
   <div class="auth-container d-flex justify-content-center align-items-center">
     <!-- <div class="d-flex justify-content-center align-items-center"> -->
-    <div class="card m-4 p-4 col-xl-4 col-lg-5 col-md-8 col-12 shadow bg-body rounded">
+    <div class="card m-4 p-4 col-xl-4 col-lg-5 col-md-8 col-sm-10 col-11 shadow bg-body rounded">
       <h4 class="text-center fw-bold">LOGIN</h4>
       <div class="card-body">
         <!-- <div class="alert alert-danger alert-dismissible fade show" role="alert" v-if="fieldErrors.login">

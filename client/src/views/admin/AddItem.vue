@@ -115,7 +115,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .add-new-item {
   font-size: 0.9rem !important;
   text-transform: uppercase !important;

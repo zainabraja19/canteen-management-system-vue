@@ -241,10 +241,14 @@ export default {
             });
 
             const response = await res.json()
-
+            console.log(response);
             if (!response.data && response.error) {
                 throw { message: response.error, status: response.status }
             }
+
+            await context.commit('setOrderId', {
+                orderId: response.data.orderId
+            })
 
             await context.commit('setCart', {
                 items: [],
@@ -292,15 +296,12 @@ export default {
     },
     async cancelOrder(context, payload) {
         try {
-            const res = await fetch(`${baseUrl}/employee/${payload.empId}/order`, {
+            const res = await fetch(`${baseUrl}/employee/${payload.empId}/order/${payload.orderId}`, {
                 method: 'PATCH',
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    orderId: payload.orderId
-                }),
             });
 
             const response = await res.json()
@@ -312,6 +313,33 @@ export default {
             console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
+            }
+            return err
+        }
+    },
+    async generateInvoice(context, payload) {
+        // /:empId/generateInvoice/:orderId
+        try {
+            const res = await fetch(`${baseUrl}/employee/${payload.empId}/order/${payload.orderId}/generateInvoice`, {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!res && res.error) {
+                throw { error: { message: res.error, status: res.status } }
+            }
+
+            const blob = await res.blob();
+            const objectURL = URL.createObjectURL(blob);
+
+            console.log(objectURL);
+            return { data: objectURL }
+        } catch (err) {
+            console.log(err);
+            if (!err.status) {
+                return { error: { message: err.message, status: 500 } }
             }
             return err
         }

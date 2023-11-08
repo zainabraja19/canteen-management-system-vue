@@ -10,7 +10,8 @@ import AdminAddItem from './views/admin/AddItem'
 import Employee from './views/employee/Employee';
 import EmployeeHome from './views/employee/Menu'
 import EmployeeProfile from './views/employee/Profile'
-import EmployeeCart from './views/employee/Cart'
+// import EmployeeCart from './views/employee/Cart'
+import OrderSummary from './views/employee/OrderSummary'
 import EmployeeOrders from './views/employee/EmployeeOrders'
 
 const router = createRouter({
@@ -25,8 +26,8 @@ const router = createRouter({
             path: '/user', component: Employee, meta: { requiresAuth: true, role: 'employee' }, children: [
                 { path: '', component: EmployeeHome },
                 { path: 'profile', component: EmployeeProfile },
-                { path: 'cart', component: EmployeeCart },
-                { path: 'orders', component: EmployeeOrders }
+                { path: 'cart', component: OrderSummary },
+                { path: 'orders', component: EmployeeOrders },
             ]
         },
         {

@@ -20,6 +20,9 @@ export default {
     orderPlaced(state) {
         return state.orderPlaced
     },
+    currentOrderId(state) {
+        return state.currentOrderId
+    },
     employeeOrders(state) {
         return state.empOrders
     },

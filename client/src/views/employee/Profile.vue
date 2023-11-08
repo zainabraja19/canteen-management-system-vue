@@ -82,23 +82,23 @@
                 </div>
                 <div class="row mt-4">
                   <div class="col-12 col-md-6 my-2">
-                    <button type="submit" class="edit-details btn btn-primary w-100">
+                    <button type="submit" class="edit-details btn w-100">
                       Edit details
                     </button>
                   </div>
                   <div class="col-12 col-md-6 my-2">
-                    <button type="button" class="upload btn btn-success w-100" data-bs-toggle="modal"
+                    <button type="button" class="upload btn w-100" data-bs-toggle="modal"
                       @click="handleUploadType('resume')" data-bs-target="#upload">
                       {{ resume ? 'Update' : 'Upload' }} Resume
                     </button>
                   </div>
                 </div>
-                <div class="mt-2" v-if="resume">
+                <!-- <div class="mt-2" v-if="resume">
                   <button type="button" class="download btn btn-dark w-100" @click="downloadPdf"
                     style="padding: 10px 30px">
                     Download Resume
                   </button>
-                </div>
+                </div> -->
               </form>
             </div>
           </div>
@@ -390,8 +390,10 @@ input {
 }
 
 .edit-details.btn:active,
-.edit-details.btn:hover,
+
 .upload:active,
+.edit-details.btn:hover,
+
 .upload:hover {
   border-color: #006363 !important;
   color: #006363 !important;
@@ -399,13 +401,14 @@ input {
   transition: background-color 0.5s;
 }
 
+/* 
 .download.btn:hover,
 .download.btn:active {
   border-color: #000;
   background-color: #fff;
   color: #000;
   transition: background-color 0.5s;
-}
+} */
 
 h3 span:focus {
   outline: #006363;

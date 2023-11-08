@@ -9,29 +9,29 @@
     <td>{{ formatDateTime(order.orderDate) }}</td>
     <td>
       <div v-if="role === 'employee'">
-        <span v-if="order.cancelled" class="badge text-light p-2 text-bg-danger ">
+        <span v-if="order.cancelled" class="badge text-bg-light p-2 text-bg-danger ">
           Cancelled
         </span>
-        <span v-else class="badge text-light p-2" :class="{
-          'text-bg-success': order.completed,
-          'text-bg-warning': !order.completed,
+        <span v-else class="badge text-bg-light p-2" :class="{
+          'text-success': order.completed,
+          'text-warning': !order.completed,
         }">{{ order.completed ? 'Completed' : 'Processing' }}</span>
       </div>
       <div v-else>
         <!-- <div class="form-check form-switch d-flex justify-content-center"> -->
         <!-- <input class="form-check-input" type="checkbox" role="switch" data-on-text="Si" data-off-text="No"
           style="font-size: larger;" value="order.completed"> -->
-        <span class="badge text-light p-2" :class="{
-          'text-bg-success': order.completed,
-          'text-bg-warning': !order.completed,
+        <span class="badge text-bg-light p-2" :class="{
+          'text-success': order.completed,
+          'text-warning': !order.completed,
         }">{{ order.completed ? 'Completed' : 'Processing' }}</span>
         <!-- </div> -->
       </div>
     </td>
-    <td v-if="role === 'employee'">
-      <button type="button" class="cancel-btn btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal"
-        @click="setSelectedOrder(order.orderId)">Cancel Order</button>
-    </td>
+    <!-- <td v-if="role === 'employee'">
+      <button type="button" class="cancel-btn btn btn-outline-danger" data-bs-toggle="modal"
+        data-bs-target="#cancelOrderModal" @click="setSelectedOrder(order.orderId)">Cancel Order</button>
+    </td> -->
     <td>
       <div :data-bs-target="'#orderDetails' + index">
         <i class="bi bi-chevron-down"></i>
@@ -40,9 +40,9 @@
   </tr>
   <tr class="accordion-collapse collapse" :id="'orderDetails' + index" data-bs-parent=".table">
     <td colspan="7">
-      <div class="accordion-body table-responsive pt-2 px-4">
+      <div class="accordion-body table-responsive pt-2 px-5">
         <h5 class="text-start">Details</h5>
-        <table class="table table-secondary table-bordered">
+        <table class="table table-bordered">
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -60,6 +60,12 @@
             </tr>
           </tbody>
         </table>
+        <div v-if="role === 'employee'" class="text-end my-2">
+          <button type="button" class="cancel-btn btn btn-dark p-2" data-bs-toggle="modal"
+            data-bs-target="#cancelOrderModal" @click="setSelectedOrder(order.orderId)">Download Invoice</button>
+          <button v-if="!order.completed" type="button" class="cancel-btn btn btn-danger p-2 ms-2" data-bs-toggle="modal"
+            data-bs-target="#cancelOrderModal" @click="setSelectedOrder(order.orderId)">Cancel Order</button>
+        </div>
       </div>
     </td>
   </tr>

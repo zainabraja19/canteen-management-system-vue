@@ -6,8 +6,11 @@ const session = require('express-session')
 const { checkAuthenticated, verifyRole } = require('./middleware/auth')
 const app = express()
 require('dotenv').config();
-
+const { createInvoice } = require('./utils/invoice')
 const port = process.env.PORT
+
+// createInvoice(invoice, 'invoice.pdf');
+
 
 mongoose.connect('mongodb://127.0.0.1:27017/canteenDB').then(() => {
     console.log("Connected to DB!")

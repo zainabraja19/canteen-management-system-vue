@@ -19,6 +19,9 @@ export default {
     setOrderPlaced(state, payload) {
         state.orderPlaced = payload.orderPlaced
     },
+    setOrderId(state, payload) {
+        state.currentOrderId = payload.orderId
+    },
     setEmpOrders(state, payload) {
         state.empOrders = payload.orders
         state.totalOrders = payload.totalOrders

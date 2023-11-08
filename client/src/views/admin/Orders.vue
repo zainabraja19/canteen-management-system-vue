@@ -146,7 +146,7 @@ export default {
 };
 </script>
 
-<style>
+<style >
 .pagination .pagination-container {
   column-gap: 10px;
   align-items: center;

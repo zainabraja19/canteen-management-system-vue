@@ -14,6 +14,7 @@ export default ({
             cartTotal: 0,
             cartCount: 0,
             orderPlaced: false,
+            currentOrderId: null,
             empOrders: null,
             totalOrders: 0,
             errors: ''
