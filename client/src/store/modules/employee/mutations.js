@@ -27,7 +27,6 @@ export default {
         state.totalOrders = payload.totalOrders
     },
     setErrors(state, payload) {
-        console.log(payload);
         state.errors = payload
     }
 }

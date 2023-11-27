@@ -20,11 +20,11 @@ const cartSchema = mongoose.Schema({
     ],
     totalItems: {
         type: Number,
-        // required: true
+        required: true
     },
     cartTotal: {
         type: Number,
-        // required: true
+        required: true
     },
 }, { timestamps: true })
 

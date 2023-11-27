@@ -3,7 +3,6 @@ const moment = require('moment');
 
 function createInvoice(orderDetails, path) {
     let doc = new PDFDocument({ size: "A4", margin: 50 });
-
     generateHeader(doc);
     generateCustomerInformation(doc, orderDetails);
     generateInvoiceTable(doc, orderDetails);
@@ -60,35 +59,6 @@ function generateCustomerInformation(doc, orderDetails) {
     generateHr(doc, 238);
 }
 
-
-// {
-//   _id: new ObjectId("654b586ea5fe7cdc492c46fc"),
-//   employee: {
-//     _id: new ObjectId("6548bdc92c0e8a046aca1168"),
-//     empId: 'A624',
-//     name: 'Zainab Raja'
-//   },
-//   items: [
-//             {
-//                 item: {
-//                     _id: new ObjectId("65448db4d04fb29532e52328"),
-//                     itemName: 'Milkshake',
-//                     price: 20,
-//                     isAvailable: true,
-//                     __v: 0
-//                 },
-//                 quantity: 1,
-//                 _id: new ObjectId("654b58edc330c5f3f28ca10f")
-//             }
-//         ],
-//   totalAmount: 120,
-//   completed: false,
-//   cancelled: false,
-//   orderDate: 2023-11-08T09:44:14.627Z,
-//   orderId: 12,
-//   __v: 0
-// }
-
 function generateInvoiceTable(doc, orderDetails) {
     doc
         .font("Helvetica-Bold")
@@ -100,6 +70,7 @@ function generateInvoiceTable(doc, orderDetails) {
 
     let i;
     const invoiceTableTop = 330;
+    let totalQuantity = 0
 
     doc.font("Helvetica-Bold");
     generateTableRow(
@@ -114,8 +85,11 @@ function generateInvoiceTable(doc, orderDetails) {
     generateHr(doc, invoiceTableTop + 20);
     doc.font("public/fonts/NotoSansDevanagari-Regular.ttf")
 
+
+
     for (i = 0; i < orderDetails.items.length; i++) {
         const item = orderDetails.items[i];
+        totalQuantity = totalQuantity + item.quantity
         const position = invoiceTableTop + (i + 1) * 30;
         generateTableRow(
             doc,
@@ -135,8 +109,8 @@ function generateInvoiceTable(doc, orderDetails) {
         doc,
         subtotalPosition,
         "",
-        "",
         "Total",
+        totalQuantity,
         formatCurrency(orderDetails.totalAmount)   //total
     );
 

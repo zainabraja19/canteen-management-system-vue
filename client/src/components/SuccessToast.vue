@@ -27,7 +27,6 @@ export default {
     },
     computed: {
         computedToastMessage() {
-            console.log(this.$store.getters['toastMessage']);
             return this.$store.getters['toastMessage']
         }
     },
@@ -37,34 +36,13 @@ export default {
         }
     },
     props: ['toastMessage'],
-    // props: ['error'],
-    // computed: {
-    //     errors() {
-    //         if (!this.error.status && this.error.message) {
-    //             return `${this.error.message}`;
-    //         }
-    //         if (this.error.status === 401) {
-    //             this.handleLogout();
-    //             return `${this.error.message} Please login again!`;
-    //         } else if (this.error.status === 400) {
-    //             console.log('400', this.error.message);
-    //             return `${this.error.message}`;
-    //         }
-    //         console.log('other', this.error);
-    //         return 'Something went wrong. Please try after some time!';
-    //     },
-    // },
     mounted() {
-        console.log(this.toastMessage);
         this.toastMessages = this.$store.getters['toastMessage']
         this.toast = new Toast(this.$refs.el);
         // var toast = new Toast(this.$refs.el);
         this.toast.show();
     },
     updated() {
-        console.log(this.toastMessage);
-
-        console.log("in");
         // var toast = new Toast(this.$refs.el);
         this.toast.show();
         // this.$store.commit('setShowToast', { showToast: false, toastMessage: null })

@@ -12,18 +12,17 @@
           <div class="row g-0">
             <div class="col-4">
               <!-- <img class="img-fluid rounded-start" alt="..." /> -->
-              <img src="https://www.vegrecipesofindia.com/wp-content/uploads/2017/07/cream-cheese-sandwich-recipe-1.jpg"
-                class="item-image img-fluid h-100 p-3" alt="..." />
+              <img :src="item.itemImage" class="item-image img-fluid h-100 p-3" alt="..." />
             </div>
             <div class="col-8">
               <div class="card-body h-100 d-flex flex-column justify-content-center">
                 <div class="d-flex justify-content-between">
                   <div class="card-title" style="
-                      max-height: 20px;
-                      overflow: hidden;
-                      text-overflow: ellipsis;
-                      white-space: nowrap;
-                    ">
+                                            max-height: 20px;
+                                            overflow: hidden;
+                                            text-overflow: ellipsis;
+                                            white-space: nowrap;
+                                          ">
                     {{ item.itemName }}
                   </div>
                   <div class="item-price text-success">

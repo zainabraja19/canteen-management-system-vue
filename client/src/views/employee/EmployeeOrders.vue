@@ -103,6 +103,7 @@ export default {
       const res = await this.$store.dispatch('employee/fetchEmployeeOrders', {
         empId: this.$store.getters['auth/user'].empId,
         page: this.currentPage,
+        id: this.$store.getters['auth/user']._id
       });
       this.totalOrders = this.$store.getters['employee/totalOrders'];
 
@@ -115,9 +116,7 @@ export default {
       }
     },
     async handleCancelOrder(id) {
-      console.log("in");
       await this.$store.commit('setShowToast', { showToast: false, toastMessage: null })
-      console.log((id));
       const res = await this.$store.dispatch('employee/cancelOrder', {
         empId: this.$store.getters['auth/user'].empId,
         orderId: id

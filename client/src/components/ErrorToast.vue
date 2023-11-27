@@ -27,7 +27,6 @@ export default {
   },
   computed: {
     errors() {
-      console.log(this.error);
       if (!this.error.status && this.error.message) {
         return `${this.error.message}`;
       }

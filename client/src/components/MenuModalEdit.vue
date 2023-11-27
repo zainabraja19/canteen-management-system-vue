@@ -72,52 +72,11 @@ export default {
     this.isAvailable = this.item.isAvailable || false;
     new Modal(document.getElementById('editItemModal'));
   },
-  mounted() {
-    console.log(this.$refs);
-  },
-  // computed: {
-  //   itemName: {
-  //     get() {
-  //       return this.item.itemName;
-  //     },
-  //     set(val) {
-  //       console.log(val);
-  //       return val;
-  //     },
-  //   },
-  //   price: {
-  //     get() {
-  //       return this.item.price;
-  //     },
-  //     set(val) {
-  //       console.log(val);
-  //       return val;
-  //     },
-  //   },
-  //   isAvailable: {
-  //     get() {
-  //       return this.item.isAvailable;
-  //     },
-  //     set(val) {
-  //       console.log(val);
-  //       return val;
-  //     },
-  //   },
-  // },
-  // mounted() {
-  //   console.log(this.item);
-  // },
   methods: {
     handleEdit(id) {
-      console.log(id);
       const newData = {};
-      console.log(
-        this.item.itemName !== this.itemName,
-        this.item.itemName,
-        this.itemName
-      );
+
       if (this.item.itemName !== this.itemName) {
-        console.log(this.itemName);
         newData['itemName'] = this.itemName;
       }
       if (this.item.price !== this.price) {
@@ -126,11 +85,6 @@ export default {
       if (this.item.availability !== this.availability) {
         newData['availability'] = this.availability;
       }
-      console.log(newData);
-      // this.$store.dispatch('admin/editItem', {
-      //   id,
-      //   newData,
-      // });
     },
   },
 

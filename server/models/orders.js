@@ -7,7 +7,7 @@ const orderSchema = mongoose.Schema({
     employee: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'Employee',
+        ref: "Employee"
     },
     orderId: {
         type: Number,
@@ -21,8 +21,13 @@ const orderSchema = mongoose.Schema({
                 required: true,
             },
             quantity: { type: Number, required: true },
+            price: { type: Number, required: true }
         },
     ],
+    totalItems: {
+        type: Number,
+        required: true,
+    },
     totalAmount: {
         type: Number,
         required: true,

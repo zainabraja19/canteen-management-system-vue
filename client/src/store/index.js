@@ -16,7 +16,6 @@ const store = createStore({
     },
     mutations: {
         setShowToast(state, payload) {
-            console.log(payload);
             state.showToast = payload.showToast
             state.toastMessage = payload.toastMessage
         }
@@ -26,7 +25,6 @@ const store = createStore({
             return state.showToast
         },
         toastMessage(state) {
-            console.log(state);
             return state.toastMessage
         }
     }

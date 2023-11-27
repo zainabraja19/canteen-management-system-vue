@@ -15,19 +15,19 @@ export default {
         });
     },
     async auth(context, payload) {
+        const { type, ...restPayload } = payload;
         try {
-            const res = await fetch(`${baseUrl}/auth/${payload.type}`, {
+            const res = await fetch(`${baseUrl}/auth/${type}`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    ...payload
+                    ...restPayload
                 })
             })
             const response = await res.json();
-
             // Handle error
             if (!response.data && response.error) {
                 throw { message: response.error, status: 400 }
@@ -54,7 +54,6 @@ export default {
                 user: response.data,
             });
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -88,7 +87,6 @@ export default {
                 user: null
             });
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -101,7 +99,6 @@ export default {
             const res = await fetch(`${baseUrl}/auth/autoLogin`, { credentials: 'include' })
 
             const response = await res.json()
-
             if (!response.data) {
                 if (response.error) {
                     throw { message: response.error, status: response.status }
@@ -111,9 +108,6 @@ export default {
             }
 
             if (response.data) {
-
-                console.log(new Date(response.data.expiresIn).getTime() - Date.now());
-
                 const cookies = document.cookie.split("; ")
 
                 const sessionCookie = cookies.find(cookie => cookie.startsWith(`connect.sid`))
@@ -127,7 +121,7 @@ export default {
                 const expiresAttribute = timerCookie.split("=")[1];
 
                 const expirationDuration = new Date(+expiresAttribute).getTime() - new Date().getTime()
-                console.log("inautologin", expirationDuration);
+
                 timer = setTimeout(function () {
                     context.dispatch('autoLogout');
                 }, expirationDuration);
@@ -142,7 +136,6 @@ export default {
                 }
             }
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }

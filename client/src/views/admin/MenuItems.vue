@@ -23,7 +23,7 @@
           </thead>
           <tbody>
             <tr v-for="(item, index) in items" :key="index">
-              <th scope="row">{{ index + 1 }}</th>
+              <th scope="row">{{ (currentPage - 1) * 10 + index + 1 }}</th>
               <td>{{ item.itemName }}</td>
               <td>{{ formatPrice(+item.price) }}</td>
               <td>{{ item.isAvailable ? 'Yes' : 'No' }}</td>

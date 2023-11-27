@@ -1,25 +1,35 @@
 const checkAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
-        return next()
+        return next();
     }
-    res.status(401).json({ data: null, error: 'Unauthenticated.', status: 401 })
-}
+    return res
+        .status(401)
+        .json({ data: null, error: "Unauthenticated.", status: 401 });
+};
 
 const checkLoggedIn = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        res.status(401).json({ data: null, error: 'You are already logged in!', status: 401 })
+    if (!req.isAuthenticated()) {
+        return next();
     }
-    next()
-}
+    return res
+        .status(401)
+        .json({ data: null, error: "You are already logged in!", status: 401 });
+};
 
 const verifyRole = (role) => {
     return function (req, res, next) {
         if (req.user.role === role) {
             next();
         } else {
-            res.status(401).json({ data: null, error: "You are not Authorized to access this resource.", status: 401 })
+            res
+                .status(401)
+                .json({
+                    data: null,
+                    error: "You are not Authorized to access this resource.",
+                    status: 401,
+                });
         }
-    }
-}
+    };
+};
 
-module.exports = { checkAuthenticated, checkLoggedIn, verifyRole }
+module.exports = { checkAuthenticated, checkLoggedIn, verifyRole };

@@ -92,6 +92,11 @@
                       {{ resume ? 'Update' : 'Upload' }} Resume
                     </button>
                   </div>
+                  <!-- <div class="mt-2 col-2" v-if="resume">
+                    <button type="button" class="btn btn-dark" @click="downloadPdf">
+                      <i class="bi bi-download"></i>
+                    </button>
+                  </div> -->
                 </div>
                 <!-- <div class="mt-2" v-if="resume">
                   <button type="button" class="download btn btn-dark w-100" @click="downloadPdf"
@@ -137,7 +142,7 @@ export default {
   },
   async mounted() {
     this.user = await this.$store.getters['auth/user'];
-    console.log(this.user);
+
     if (this.user) {
       this.isLoading = false;
     }
@@ -224,7 +229,10 @@ export default {
       if (this.name !== this.user.name || this.name !== '') {
 
         const res = await this.$store.dispatch('employee/editDetails', {
-          newData: { name: this.name },
+          newData: {
+            name: this.name
+          },
+          empId: this.user.empId
         });
 
         if (res) {
@@ -237,20 +245,13 @@ export default {
         }
       }
     },
-    handleValidations(event) {
-      console.log(event.target.name, event.target.value);
-      const error = Validator(event.target.name, event.target.value);
-      console.log(error);
-      // this.errors[event.target.name] = error[event.target.name];
-    },
     async handleEdit() {
-      console.log(this.user);
+
       const newData = {};
       let error = null;
-      console.log(this.email !== this.user.email, this.email, this.user.email);
+
       if (this.email !== this.user.email) {
         error = Validator('email', this.email);
-        console.log(error);
         if (!error.email) {
           newData['email'] = this.email;
           this.error = null;
@@ -260,9 +261,8 @@ export default {
           this.error = { message: error.email, status: 400 };
         }
       }
-      if (this.phone !== this.user.phone) {
+      else if (this.phone !== this.user.phone) {
         error = Validator('phone', this.phone);
-        console.log(error);
         if (!error.phone) {
           newData['phone'] = this.phone;
           this.error = null;
@@ -271,7 +271,6 @@ export default {
         } else {
           this.isError = true;
           this.error = { message: error.phone, status: 400 };
-          console.log("phone error");
         }
       }
 
@@ -279,6 +278,7 @@ export default {
         if (Object.keys(newData).length > 0) {
           const res = await this.$store.dispatch('employee/editDetails', {
             newData,
+            empId: this.user.empId,
           });
 
           if (res) {

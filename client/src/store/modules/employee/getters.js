@@ -30,7 +30,6 @@ export default {
         return state.totalOrders
     },
     errors(state) {
-        console.log(state);
         return state.errors
     }
 }

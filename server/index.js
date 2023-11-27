@@ -8,9 +8,9 @@ const app = express()
 require('dotenv').config();
 const { createInvoice } = require('./utils/invoice')
 const port = process.env.PORT
-
-// createInvoice(invoice, 'invoice.pdf');
-
+const authRoutes = require('./routes/auth/authRoutes')
+const adminRoutes = require('./routes/admin/adminRoutes')
+const employeeRoutes = require('./routes/employee/employeeRoutes')
 
 mongoose.connect('mongodb://127.0.0.1:27017/canteenDB').then(() => {
     console.log("Connected to DB!")
@@ -33,7 +33,7 @@ app.use(session({
         maxAge: 3 * 60 * 60 * 1000,
         secure: false,
         httpOnly: false,
-    } // 1 hour
+    }
 }))
 
 app.use(passport.initialize());
@@ -41,19 +41,26 @@ app.use(passport.session())
 
 require('./utils/passport')
 // Routes
-app.use('/auth', require('./routes/authRoutes'));
-app.use(
-    '/employee',
-    checkAuthenticated,
-    verifyRole('employee'),
-    require('./routes/empRoutes')
-);
-app.use(
-    '/admin',
-    checkAuthenticated,
-    verifyRole('admin'),
-    require('./routes/adminRoutes')
-);
+// app.use('/auth', require('./route/authRoutes'));
+// app.use(
+//     '/employee',
+
+//     require('./route/empRoutes')
+// );
+// app.use(
+//     '/admin',
+//     checkAuthenticated,
+//     verifyRole('admin'),
+//     require('./route/adminRoutes')
+// );
+app.use('/auth', authRoutes)
+app.use('/admin', checkAuthenticated, verifyRole('admin'), adminRoutes)
+app.use('/employee', checkAuthenticated, verifyRole('employee'), employeeRoutes)
+
+// Error handler to catch undefined routes
+app.use((req, res, next) => {
+    res.status(404).json({ data: null, error: `Route not found - ${req.originalUrl}`, status: 404 });
+});
 
 // Error handler
 app.use((err, req, res, next) => {

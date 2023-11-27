@@ -4,9 +4,8 @@ const baseUrl = process.env.VUE_APP_IP_ADDRESS
 
 export default {
     async editDetails(context, payload) {
-        console.log(payload);
         try {
-            const res = await fetch(`${baseUrl}/employee`, {
+            const res = await fetch(`${baseUrl}/employee/${payload.empId}`, {
                 method: 'PATCH',
                 credentials: 'include',
                 headers: {
@@ -23,7 +22,6 @@ export default {
 
             context.commit('auth/setUser', { user: response.data }, { root: true })
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -40,14 +38,28 @@ export default {
             })
 
             const response = await res.json()
-
+            console.log(response);
             if (!response.data && response.error) {
                 throw { message: response.error, status: response.status }
             }
 
+            response.data.map(item => {
+                const bufferData = item.itemImage.buffer
+                // if (bufferData !== null) {
+                const buffer = Buffer.from(bufferData.data, 'base64');
+                const blob = new Blob([buffer], { type: item.itemImage.mimeType }
+                );
+
+                const url = window.URL.createObjectURL(blob)
+
+                item.itemImage = url
+            })
+
+            // context.commit(payload.type === 'resume' ? 'setResume' : 'setProfilePicture', { [payload.type]: url })
+            // }
+
             context.commit('setMenu', { menu: response.data })
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -99,7 +111,6 @@ export default {
                 context.commit(payload.type === 'resume' ? 'setResume' : 'setProfilePicture', { [payload.type]: null })
             }
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -108,16 +119,14 @@ export default {
     },
     async cartCount(context, payload) {
         try {
-            const res = await fetch(`${baseUrl}/employee/${payload.empId}/cartCount`, { credentials: 'include' })
+            const res = await fetch(`${baseUrl}/employee/${payload.empId}/cart/cartCount`, { credentials: 'include' })
             const response = await res.json()
 
             if (!response.data && response.error) {
                 throw { message: response.error, status: response.status }
             }
-            console.log(response.data);
             context.commit('setCartCount', { count: response.data.count })
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -146,7 +155,6 @@ export default {
                 cartTotal: response.data.cartTotal
             })
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -182,7 +190,6 @@ export default {
                 ...payload
             });
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -218,7 +225,6 @@ export default {
                 ...payload
             });
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -237,11 +243,11 @@ export default {
                 body: JSON.stringify({
                     items: payload.cartItems,
                     totalAmount: payload.cartTotal,
+                    totalItems: payload.totalItems
                 }),
             });
 
             const response = await res.json()
-            console.log(response);
             if (!response.data && response.error) {
                 throw { message: response.error, status: response.status }
             }
@@ -259,7 +265,6 @@ export default {
                 count: 0
             });
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -287,7 +292,6 @@ export default {
             })
             context.commit('setErrors', null)
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -305,12 +309,10 @@ export default {
             });
 
             const response = await res.json()
-            console.log(response);
             if (!response.data && response.error) {
                 throw { message: response.error, status: response.status }
             }
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -334,10 +336,8 @@ export default {
             const blob = await res.blob();
             const objectURL = URL.createObjectURL(blob);
 
-            console.log(objectURL);
             return { data: objectURL }
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { error: { message: err.message, status: 500 } }
             }

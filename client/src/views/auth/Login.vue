@@ -98,18 +98,16 @@ export default {
       const res = await this.$store.dispatch('auth/login', actionPayload);
       console.log(res);
       if (res) {
-        this.fieldErrors.login = res
-        this.error = res
+        this.fieldErrors.login = res;
+        this.error = res;
         this.isError = true;
         this.isLoading = false;
       } else {
-
         if (this.$store.getters['auth/isAuthenticated']) {
           this.isLoading = false;
         }
 
         const role = this.$store.getters['auth/userRole'];
-
         this.error = null;
         this.isError = false;
         this.$router.push(`/${role === 'employee' ? 'user' : 'admin'}`);
@@ -121,8 +119,8 @@ export default {
     },
   },
   components: {
-    ErrorToast
-  }
+    ErrorToast,
+  },
 };
 </script>
 

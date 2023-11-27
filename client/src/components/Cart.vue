@@ -5,18 +5,19 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
-    <div class="mx-5" v-else>
-        <div class="cart card mb-4" v-if="cartCount > 0">
+    <div class="mx-5 d-flex justify-content-center" v-else>
+        <div class="col-10 cart mb-4" v-if="cartCount > 0">
+            <div class="col-12 d-flex justify-content-between align-items-center px-3 py-2 ">
+                <h3 class="heading">Cart</h3>
+                <h5 class="text-muted">
+                    {{ cartCount }} item<span v-if="cartCount > 1">s</span>
+                </h5>
+            </div>
+
             <div class="row g-0 flex-grow-1">
-                <div class="col-12 p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h2 class="heading">Cart</h2>
-                        <h5 class="text-muted">
-                            {{ cartCount }} item<span v-if="cartCount > 1">s</span>
-                        </h5>
-                    </div>
-                    <hr class="mb-1" />
-                    <div class="row g-0 align-items-center" v-for="(item, index) in cartItems" :key="index">
+                <div class="col-12 px-3">
+                    <!-- <hr /> -->
+                    <!-- <div class="row g-0 align-items-center card" v-for="(item, index) in cartItems" :key="index">
                         <div class="col-4 p-2">
                             <img src="https://www.vegrecipesofindia.com/wp-content/uploads/2017/07/cream-cheese-sandwich-recipe-1.jpg"
                                 class="img-fluid rounded-start w-25 h-25" alt="..." />
@@ -27,14 +28,12 @@
                                     {{ item.item.itemName }}
                                 </div>
                                 <div class="col-3 item">
-                                    <!-- <button type="button" :disabled="item.quantity === 1"> -->
                                     <i type="button" class="bi bi-dash-circle me-2 text-danger"
                                         @click="removeCartItem(item.item._id, item.item.itemName, 1)"></i>
-                                    <!-- </button> -->
                                     <span>{{ item.quantity }}</span>
                                     <i class="bi bi-plus-circle ms-2 text-success" @click="
                                         item.quantity < 10 ? addCartItem(item.item._id, item.item.itemName) : null
-                                        "></i>
+                                    "></i>
                                 </div>
                                 <div class="col-3 item text-muted">
                                     {{ formatPrice(item.item.price * item.quantity) }}
@@ -45,25 +44,118 @@
                                 </div>
                             </div>
                         </div>
-                        <hr v-if="index < cartItems.length - 1" class="mb-1" />
+                    </div> -->
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th class="text-start flex-grow-1" colspan="4">Item</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end" colspan="2">Quantity</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in cartItems" :key="index">
+                                    <td class="text-start flex-grow-1 " colspan="4">
+                                        <img src="https://www.vegrecipesofindia.com/wp-content/uploads/2017/07/cream-cheese-sandwich-recipe-1.jpg"
+                                            style="width: 5rem; height: 5rem;" class="img-fluid" alt="..." />
+                                        <span class="ms-4 fs-6 fw-bold d-inline-flex flex-column justify-content-center ">
+                                            <span>{{ item.item.itemName }}</span>
+                                            <span type="button" class="text-decoration-underline text-muted"
+                                                style="font-size: smaller;"
+                                                @click="removeCartItem(item.item._id, item.item.itemName, item.quantity)">
+                                                Remove
+                                            </span>
+                                        </span>
+                                    </td>
+                                    <td class="text-end">{{ formatPrice(item.item.price) }}</td>
+                                    <td class="text-end" colspan="2">
+                                        <i type="button" class="bi bi-dash-square me-2 text-dark"
+                                            @click="removeCartItem(item.item._id, item.item.itemName, 1)"></i>
+                                        <span class="fw-bold">{{ item.quantity }}</span>
+                                        <i type="button" class="bi bi-plus-square ms-2 text-dark" @click="
+                                            item.quantity < 10 ? addCartItem(item.item._id, item.item.itemName) : null
+                                        ">
+                                        </i>
+                                    </td>
+                                    <td class="text-end">{{ formatPrice(item.item.price * item.quantity) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-                <div class="col-12 bg-light p-4 w-100" style="max-height: min-content">
-                    <!-- <div> -->
-                    <h4 class="heading">Summary</h4>
-                    <hr />
-                    <div class="d-flex flex-column align-items-center">
-                        <div class="w-25">
-                            <div class="text-uppercase text-muted d-flex flex-row justify-content-between w-100">
-                                <div>Total Amount</div>
-                                <div>{{ formatPrice(+cartTotal) }}</div>
-                            </div>
-                            <button type="button" class="place-order btn btn-dark text-uppercase w-100 my-4"
-                                @click="handleOrderPlaced">
-                                Place Order
-                            </button>
+                    <!-- <div class="flex-row row g-0" v-for="(item, index) in cartItems" :key="index">
+                        <div class="col-4 p-3">
+                            <img src="https://www.vegrecipesofindia.com/wp-content/uploads/2017/07/cream-cheese-sandwich-recipe-1.jpg"
+                                style="width: 120px; height: 120px;" class="img-fluid rounded-start" alt="..." />
                         </div>
-                        {{ cart }}
+                        <div class="col-8 p-3 d-flex justify-content-between align-items-center">
+                            <div class="d-flex justify-content-between  item text-uppercase">
+                                <div class="fs-5">{{ item.item.itemName }}</div>
+                            </div>
+                            <div class=" item">
+                                <i type="button" class="bi bi-dash-circle me-2 text-dark"
+                                    @click="removeCartItem(item.item._id, item.item.itemName, 1)"></i>
+                                <span>{{ item.quantity }}</span>
+                                <i class="bi bi-plus-circle ms-2 text-dark" @click="
+                                    item.quantity < 10 ? addCartItem(item.item._id, item.item.itemName) : null
+                                "></i>
+                            </div>
+                            <div class=" item text-muted">
+                                {{ formatPrice(item.item.price * item.quantity) }}
+                            </div>
+                            <div class=" text-danger">
+                                <i class="bi bi-trash3 text-danger"
+                                    @click="removeCartItem(item.item._id, item.item.itemName, item.quantity)"></i>
+                            </div>
+
+                        </div>
+                    </div> -->
+                </div>
+                <div>
+                    <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4 p-3 float-end " style="max-height: min-content">
+                        <!-- <div> -->
+                        <div class=" p-3">
+                            <div class="d-flex justify-content-between align-items-center ">
+                                <h4 class="heading">Summary</h4>
+                            </div>
+                            <hr class="mt-2" />
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="w-100">
+                                    <div
+                                        class="text-uppercase text-muted d-flex flex-row justify-content-between w-100 mt-1">
+                                        <div>Subtotal</div>
+                                        <div class="fw-normal">{{ formatPrice(+cartTotal) }}</div>
+                                    </div>
+                                    <div
+                                        class="text-uppercase text-muted d-flex flex-row justify-content-between w-100 mt-1">
+                                        <div>Tax</div>
+                                        <div class="fw-normal">{{ formatPrice(tax) }}</div>
+                                    </div>
+                                    <div
+                                        class="text-uppercase text-muted d-flex flex-row justify-content-between w-100 mt-1">
+                                        <div>Total</div>
+                                        <div>{{ formatPrice(+cartTotal + tax) }}</div>
+                                    </div>
+                                    <div class="my-4 d-flex flex-column align-items-center ">
+                                        <button type="button" class="place-order btn btn-dark text-uppercase w-100 my-1"
+                                            @click="handleOrderPlaced">
+                                            Place Order
+                                        </button>
+                                        <div class="my-1">OR</div>
+                                        <!-- <button type="button" class="place-order btn btn-dark text-uppercase w-100 my-1"
+                                            @click="handleOrderPlaced">
+                                            Place Order
+                                        </button> -->
+                                        <router-link to="/" type="button" class="summary go-back btn rounded w-100">Return
+                                            to
+                                            menu</router-link>
+
+                                    </div>
+                                </div>
+                                {{ cart }}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -94,6 +186,7 @@ export default {
             cartItems: null,
             cartTotal: null,
             cartCount: null,
+            tax: 0,
             isLoading: true,
             isLoadingPlaceOrder: false,
             isError: false,
@@ -158,10 +251,22 @@ export default {
     methods: {
         formatPrice,
         async handleOrderPlaced() {
+            console.log(this.cartItems);
+            const extractedData = this.cartItems.map(obj => {
+                return {
+                    item: obj.item._id,
+                    quantity: obj.quantity,
+                    price: obj.item.price
+                }
+            });
+
+            console.log(extractedData);
             const res = await this.$store.dispatch('employee/placeOrder', {
                 empId: this.$store.getters['auth/user'].empId,
-                cartItems: this.cartItems,
+                id: this.$store.getters['auth/user']._id,
+                cartItems: extractedData,
                 cartTotal: this.cartTotal,
+                totalItems: this.cartCount
             });
 
             if (res) {
@@ -220,9 +325,9 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap');
 
-.cart {
+/* .cart {
     font-family: 'Oswald', sans-serif;
-}
+} */
 
 .item {
     text-transform: uppercase;
@@ -246,18 +351,13 @@ export default {
     /* border: #fff; */
 }
 
-.place-order.btn:active {
-    /* Styles for the click effect */
-    transition: transform 0.6s;
-    transform: scale(0.95);
-}
-
 .bi.bi-cart-dash {
     font-size: 5rem;
 }
 
 .go-back {
-    font-size: 14px;
+    font-size: 1rem;
+    font-weight: 400 !important;
     text-transform: uppercase;
     background: #006363;
     padding: 15px 30px;
@@ -273,6 +373,23 @@ export default {
     color: #006363 !important;
     background-color: white !important;
     transition: background-color 0.5s;
+}
+
+.place-order.btn:active,
+.go-back.btn:active {
+    /* Styles for the click effect */
+    transition: transform 0.6s;
+    transform: scale(0.95);
+}
+
+.go-back.summary {
+    background: #fff;
+    padding: 0.375rem 0.75rem;
+    border-radius: 40px;
+    color: #006363;
+    border-color: #006363;
+    font-weight: 700;
+    box-shadow: 0px 4px 15px -5px rgba(0, 0, 0, 0.3);
 }
 </style>
   

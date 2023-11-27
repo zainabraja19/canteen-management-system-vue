@@ -107,6 +107,9 @@ export default {
       selectedOrder: null,
     };
   },
+  mounted() {
+    console.log(this.order.items);
+  },
   watch: {
     selectedOrder(val) {
       console.log(val);
@@ -119,12 +122,9 @@ export default {
       this.showAccordion = !this.showAccordion;
     },
     setSelectedOrder(id) {
-      console.log(id);
       this.selectedOrder = id
-      console.log(this.selectedOrder);
     },
     async emitCancelOrder() {
-      console.log("here", this.selectedOrder);
       this.$emit('cancelOrder')
     }
   },

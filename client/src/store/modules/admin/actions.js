@@ -18,7 +18,6 @@ export default {
 
             context.commit('setMenu', { menu: response.data.menu, totalMenuItems: response.data.totalItems })
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -46,7 +45,6 @@ export default {
                 totalOrders: response.data.totalOrders
             })
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -56,7 +54,7 @@ export default {
     },
     async addNewItem(context, payload) {
         try {
-            const res = await fetch(`${baseUrl}/admin/item`, {
+            const res = await fetch(`${baseUrl}/admin/menu`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -70,10 +68,7 @@ export default {
             if (!response.data && response.error) {
                 throw { message: response.error, status: response.status }
             }
-
-            console.log(response.data);
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
@@ -83,7 +78,7 @@ export default {
     },
     async editItem(context, payload) {
         try {
-            const res = await fetch(`${baseUrl}/admin/item/${payload.id}`, {
+            const res = await fetch(`${baseUrl}/admin/menu/${payload.id}`, {
                 method: 'PATCH',
                 credentials: 'include',
                 headers: {
@@ -97,10 +92,7 @@ export default {
             if (!response.data && response.error) {
                 throw { message: response.error, status: response.status }
             }
-
-            console.log(response.data);
         } catch (err) {
-            console.log(err);
             if (!err.status) {
                 return { message: err.message, status: 500 }
             }
