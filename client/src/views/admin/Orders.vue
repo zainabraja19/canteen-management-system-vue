@@ -8,38 +8,40 @@
   <div v-else class="mx-5">
     <div class="d-flex flex-column flex-sm-row fl justify-content-between">
       <h2>Orders</h2>
-      <div>
+      <div class="status-select">
         <select class="form-select" v-model="selectedOption" @change="handleFilterChange">
           <option value="all">All Orders</option>
           <option value="remaining">Remaining Orders</option>
+          <option value="cancelled">Cancelled Orders</option>
           <option value="completed">Completed Orders</option>
         </select>
       </div>
     </div>
     <!-- <hr /> -->
     <div v-if="totalOrders > 0" class="table-responsive mt-1">
-      <div style="min-height: 450px">
+      <div style="min-height: 400px">
         <table class="table text-center">
           <thead>
             <tr>
-              <th scope="col">#</th>
+              <th scope="col">Order ID</th>
               <th scope="col">Employee ID</th>
               <th scope="col">Name</th>
               <th scope="col">Phone</th>
-              <th scope="col">Total</th>
+              <th scope="col">Order Total</th>
               <th scope="col">
                 Order Date
-                <i class="bi bi-arrow-down ms-2 text-secondary" @click="sortBy('orderDate')"></i>
+                <!-- <i class="bi bi-arrow-down ms-2 text-secondary" @click="sortBy('orderDate')"></i> -->
               </th>
               <th scope="col">
                 Completed
-                <i class="bi bi-arrow-down ms-2 text-secondary" @click="sortBy('completed')"></i>
+                <!-- <i class="bi bi-arrow-down ms-2 text-secondary" @click="sortBy('completed')"></i> -->
               </th>
               <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
-            <OrderDetails :order="order" :index="index" role="admin" v-for="(order, index) in orders" :key="index">
+            <OrderDetails :order="order" :index="index" role="admin" v-for="(order, index) in orders" :key="index"
+              @completeOrder="handleCompleteOrder">
             </OrderDetails>
           </tbody>
         </table>
@@ -62,7 +64,7 @@
     <div v-else>
       <hr />
       <div class="d-flex flex-column align-items-center justify-content-center mt-4 fs-5" style="min-height: 60vh">
-        <strong>No orders remaining!</strong>
+        <strong>No {{ selectedOption != 'all' ? selectedOption : '' }} orders found.</strong>
       </div>
     </div>
   </div>
@@ -132,12 +134,32 @@ export default {
 
     },
     handleFilterChange() {
+      this.currentPage = 1
       this.fetchData();
     },
     sortBy(type) {
       console.log(type);
       // this.sortBy[type] =
     },
+    async handleCompleteOrder(orderId) {
+      await this.$store.commit('setShowToast', { showToast: false, toastMessage: null })
+      const res = await this.$store.dispatch('admin/markOrderComplete', {
+        empId: this.$store.getters['auth/user'].empId,
+        orderId
+      })
+
+      if (res) {
+        this.isError = true;
+        this.error = res;
+      } else {
+        await this.$store.commit('setShowToast', { showToast: true, toastMessage: `Order #${orderId} completed.` })
+
+        this.error = null;
+        this.isError = false;
+      }
+
+      this.fetchData()
+    }
   },
   components: {
     OrderDetails,
@@ -207,4 +229,10 @@ export default {
 .pagination .next-button:active {
   background-color: rgb(85, 85, 85);
 }
+
+/* .status-select select option {
+  border: none !important;
+  outline: none !important;
+  border-bottom-left-radius: 40px;
+} */
 </style>

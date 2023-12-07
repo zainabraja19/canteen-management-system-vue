@@ -9,7 +9,7 @@
           {{ fieldErrors.login }}
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div> -->
-        <form class="row g-3" @submit.prevent="onSubmit()" novalidate>
+        <form class="row g-3 w" @submit.prevent="onSubmit()" novalidate>
           <div class="col-12">
             <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
             <input type="email" class="form-control" id="email" name="email" v-model.trim="email" required
@@ -96,8 +96,9 @@ export default {
       };
 
       const res = await this.$store.dispatch('auth/login', actionPayload);
-      console.log(res);
+
       if (res) {
+        console.log(res);
         this.fieldErrors.login = res;
         this.error = res;
         this.isError = true;
@@ -114,8 +115,17 @@ export default {
       }
     },
     handleValidations(event) {
-      const error = Validator(event.target.name, event.target.value);
-      this.fieldErrors[event.target.name] = error[event.target.name];
+      const { name, value } = event.target
+
+      if (name === 'password' && value.length > 0 && value.length < 6) {
+        this.fieldErrors[name] = null
+        return
+      }
+
+      const error = Validator(name, value);
+      this.fieldErrors[name] = error[name];
+      // if (this.fieldErrors.email || this.fieldErrors.password) { this.isError = true }
+      // this.error = { message: error[event.target.name], status: 400 }
     },
   },
   components: {
@@ -153,7 +163,7 @@ export default {
   color: #006363 !important;
 }
 
-input {
-  font-family: 'Roboto', sans-serif;
+input.form-control {
+  font-family: 'Roboto', sans-serif !important;
 }
 </style>

@@ -5,7 +5,7 @@
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
-  <div class="mx-5" v-else>
+  <div class="mx-3 mx-md-4 mx-lg-5 " v-else>
     <div v-if="items.length > 0" class="row row-cols-1 row-cols-md-2 row-cols-lg-3  row-cols-xl-4  g-4">
       <div class="col" v-for="(item, index) in items" :key="index">
         <div class="card">

@@ -3,6 +3,7 @@
   <success-toast v-if="showToast" :toastMessage="toastMessage"></success-toast>
   <error-toast v-if="isError" :error="error"></error-toast>
   <div class="container-fluid" style="min-height: 80vh;">
+    <!-- <bread-crumb></bread-crumb> -->
     <router-view></router-view>
   </div>
 </template>
@@ -11,12 +12,14 @@
 import TheHeader from './components/TheHeader.vue';
 import ErrorToast from './components/ErrorToast.vue';
 import SuccessToast from './components/SuccessToast.vue';
+// import BreadCrumb from './components/BreadCrumb.vue';
 
 export default {
   components: {
     TheHeader,
     ErrorToast,
-    SuccessToast
+    SuccessToast,
+    // BreadCrumb
   },
   data() {
     return {

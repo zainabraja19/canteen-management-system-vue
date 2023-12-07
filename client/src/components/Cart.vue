@@ -5,8 +5,8 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
-    <div class="mx-5 d-flex justify-content-center" v-else>
-        <div class="col-10 cart mb-4" v-if="cartCount > 0">
+    <div class="mx-sm-3 mx-md-4 mx-lg-5  d-flex justify-content-center" v-else>
+        <div class="col-12 col-md-11 col-lg-10 cart mb-4" v-if="cartCount > 0">
             <div class="col-12 d-flex justify-content-between align-items-center px-3 py-2 ">
                 <h3 class="heading">Cart</h3>
                 <h5 class="text-muted">
@@ -16,104 +16,53 @@
 
             <div class="row g-0 flex-grow-1">
                 <div class="col-12 px-3">
-                    <!-- <hr /> -->
-                    <!-- <div class="row g-0 align-items-center card" v-for="(item, index) in cartItems" :key="index">
-                        <div class="col-4 p-2">
-                            <img src="https://www.vegrecipesofindia.com/wp-content/uploads/2017/07/cream-cheese-sandwich-recipe-1.jpg"
-                                class="img-fluid rounded-start w-25 h-25" alt="..." />
-                        </div>
-                        <div class="col-8">
-                            <div class="row">
-                                <div class="col-3 item text-uppercase">
-                                    {{ item.item.itemName }}
-                                </div>
-                                <div class="col-3 item">
-                                    <i type="button" class="bi bi-dash-circle me-2 text-danger"
-                                        @click="removeCartItem(item.item._id, item.item.itemName, 1)"></i>
-                                    <span>{{ item.quantity }}</span>
-                                    <i class="bi bi-plus-circle ms-2 text-success" @click="
-                                        item.quantity < 10 ? addCartItem(item.item._id, item.item.itemName) : null
-                                    "></i>
-                                </div>
-                                <div class="col-3 item text-muted">
-                                    {{ formatPrice(item.item.price * item.quantity) }}
-                                </div>
-                                <div class="col-3 text-danger">
-                                    <i class="bi bi-trash3 text-danger"
-                                        @click="removeCartItem(item.item._id, item.item.itemName, item.quantity)"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
                     <div class="table-responsive">
                         <table class="table align-middle">
                             <thead>
                                 <tr>
-                                    <th class="text-start flex-grow-1" colspan="4">Item</th>
-                                    <th class="text-end">Price</th>
-                                    <th class="text-end" colspan="2">Quantity</th>
-                                    <th class="text-end">Total</th>
+                                    <th class="flex-grow-1 col col-sm-8">Item</th>
+                                    <th class="text-center col col-sm-1">Price</th>
+                                    <th class="text-center col col-sm-2">Quantity</th>
+                                    <th class="text-end col col-sm-1">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="(item, index) in cartItems" :key="index">
-                                    <td class="text-start flex-grow-1 " colspan="4">
-                                        <img src="https://www.vegrecipesofindia.com/wp-content/uploads/2017/07/cream-cheese-sandwich-recipe-1.jpg"
-                                            style="width: 5rem; height: 5rem;" class="img-fluid" alt="..." />
-                                        <span class="ms-4 fs-6 fw-bold d-inline-flex flex-column justify-content-center ">
-                                            <span>{{ item.item.itemName }}</span>
-                                            <span type="button" class="text-decoration-underline text-muted"
-                                                style="font-size: smaller;"
-                                                @click="removeCartItem(item.item._id, item.item.itemName, item.quantity)">
-                                                Remove
+                                    <td class="col col-sm-8">
+                                        <div class=" d-flex flex-column flex-sm-row ">
+                                            <img src="../../public/food_logo.jpg" style="width: 5rem; height: 5rem;"
+                                                class="img-fluid" alt="..." />
+                                            <span
+                                                class="item-name mt-2 mt-sm-0 ms-sm-4 fw-bold d-inline-flex flex-column justify-content-center overflow-hidden  ">
+                                                <span>{{ item.item.itemName }}</span>
+                                                <span type="button" class="text-decoration-underline text-muted"
+                                                    style="font-size: smaller;"
+                                                    @click="setItemToRemoveFromCart(item.item._id, item.item.itemName, item.quantity, true)"
+                                                    data-bs-toggle="modal" data-bs-target="#removeItemFromCartModal">
+                                                    Remove
+                                                </span>
                                             </span>
-                                        </span>
+                                        </div>
                                     </td>
-                                    <td class="text-end">{{ formatPrice(item.item.price) }}</td>
-                                    <td class="text-end" colspan="2">
+                                    <td class="text-center col col-sm-1">{{ formatPrice(item.item.price) }}</td>
+                                    <td class="text-center col col-sm-2">
                                         <i type="button" class="bi bi-dash-square me-2 text-dark"
-                                            @click="removeCartItem(item.item._id, item.item.itemName, 1)"></i>
+                                            @click="setItemToRemoveFromCart(item.item._id, item.item.itemName, 1, false)"></i>
                                         <span class="fw-bold">{{ item.quantity }}</span>
                                         <i type="button" class="bi bi-plus-square ms-2 text-dark" @click="
                                             item.quantity < 10 ? addCartItem(item.item._id, item.item.itemName) : null
-                                        ">
+                                            ">
                                         </i>
                                     </td>
-                                    <td class="text-end">{{ formatPrice(item.item.price * item.quantity) }}</td>
+                                    <td class="text-end col col-sm-1">{{ formatPrice(item.item.price * item.quantity) }}
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <!-- <div class="flex-row row g-0" v-for="(item, index) in cartItems" :key="index">
-                        <div class="col-4 p-3">
-                            <img src="https://www.vegrecipesofindia.com/wp-content/uploads/2017/07/cream-cheese-sandwich-recipe-1.jpg"
-                                style="width: 120px; height: 120px;" class="img-fluid rounded-start" alt="..." />
-                        </div>
-                        <div class="col-8 p-3 d-flex justify-content-between align-items-center">
-                            <div class="d-flex justify-content-between  item text-uppercase">
-                                <div class="fs-5">{{ item.item.itemName }}</div>
-                            </div>
-                            <div class=" item">
-                                <i type="button" class="bi bi-dash-circle me-2 text-dark"
-                                    @click="removeCartItem(item.item._id, item.item.itemName, 1)"></i>
-                                <span>{{ item.quantity }}</span>
-                                <i class="bi bi-plus-circle ms-2 text-dark" @click="
-                                    item.quantity < 10 ? addCartItem(item.item._id, item.item.itemName) : null
-                                "></i>
-                            </div>
-                            <div class=" item text-muted">
-                                {{ formatPrice(item.item.price * item.quantity) }}
-                            </div>
-                            <div class=" text-danger">
-                                <i class="bi bi-trash3 text-danger"
-                                    @click="removeCartItem(item.item._id, item.item.itemName, item.quantity)"></i>
-                            </div>
-
-                        </div>
-                    </div> -->
                 </div>
                 <div>
-                    <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4 p-3 float-end " style="max-height: min-content">
+                    <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4 p-3 float-end " style="max-height: min-content">
                         <!-- <div> -->
                         <div class=" p-3">
                             <div class="d-flex justify-content-between align-items-center ">
@@ -139,22 +88,41 @@
                                     </div>
                                     <div class="my-4 d-flex flex-column align-items-center ">
                                         <button type="button" class="place-order btn btn-dark text-uppercase w-100 my-1"
-                                            @click="handleOrderPlaced">
-                                            Place Order
-                                        </button>
-                                        <div class="my-1">OR</div>
+                                            @click="handlePayment">
+                                            Checkout </button>
                                         <!-- <button type="button" class="place-order btn btn-dark text-uppercase w-100 my-1"
                                             @click="handleOrderPlaced">
                                             Place Order
                                         </button> -->
-                                        <router-link to="/" type="button" class="summary go-back btn rounded w-100">Return
+                                        <router-link to="/" type="button"
+                                            class="summary go-back btn rounded w-100 mt-2">Return
                                             to
                                             menu</router-link>
 
                                     </div>
                                 </div>
-                                {{ cart }}
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" ref="removeItemFromCartModal" id="removeItemFromCartModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered bg-transparent ">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="removeItemFromCartModalLabel">Confirmation</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to remove this item from cart?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                Cancel
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="removeCartItem">
+                                Confirm
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -177,12 +145,6 @@ import ErrorToast from './ErrorToast.vue';
 export default {
     data() {
         return {
-            // cart: {
-            //   items: null,
-            //   totalItems: null,
-            //   cartTotal: null,
-            // },
-            // cart: null,
             cartItems: null,
             cartTotal: null,
             cartCount: null,
@@ -191,9 +153,12 @@ export default {
             isLoadingPlaceOrder: false,
             isError: false,
             error: null,
+            selectedItemToRemoveFromCart: null,
+            removeCompleteItem: false
         };
     },
     async mounted() {
+        await this.$store.commit('employee/setStatusLoading', false)
         this.cartCount = await this.$store.getters['employee/cartCount'];
 
         const res = await this.$store.dispatch('employee/fetchCart', {
@@ -216,10 +181,6 @@ export default {
         }
     },
     computed: {
-        cart() {
-            // Your computed logic here
-            return this.$store.getters['employee/cart'];
-        },
         computedCartCount() {
             return this.$store.getters['employee/cartCount'];
         },
@@ -229,15 +190,11 @@ export default {
         computedCartItems() {
             return this.$store.getters['employee/cartItems'];
         },
+        computedItemToRemoveFromCart() {
+            return this.$store.getters['employee/selectedItemToRemoveFromCart']
+        }
     },
     watch: {
-        cart: {
-            handler(newValue) {
-                console.log(newValue);
-            },
-            immediate: true,
-            deep: true,
-        },
         computedCartCount(newValue) {
             this.cartCount = newValue;
         },
@@ -247,54 +204,50 @@ export default {
         computedCartItems(newValue) {
             this.cartItems = newValue;
         },
+        computedItemToRemoveFromCart: {
+            handler(val) {
+                this.selectedItemToRemoveFromCart = val
+            },
+            deep: true
+        }
     },
     methods: {
         formatPrice,
-        async handleOrderPlaced() {
-            console.log(this.cartItems);
-            const extractedData = this.cartItems.map(obj => {
-                return {
-                    item: obj.item._id,
-                    quantity: obj.quantity,
-                    price: obj.item.price
-                }
-            });
-
-            console.log(extractedData);
-            const res = await this.$store.dispatch('employee/placeOrder', {
-                empId: this.$store.getters['auth/user'].empId,
-                id: this.$store.getters['auth/user']._id,
-                cartItems: extractedData,
-                cartTotal: this.cartTotal,
-                totalItems: this.cartCount
-            });
-
-            if (res) {
-                this.isError = true;
-                this.error = res;
-            } else {
-                await this.$store.commit('setShowToast', { showToast: true, toastMessage: "Order placed successfully." })
-                await this.$store.commit('employee/setOrderPlaced', { orderPlaced: true })
-
-                this.error = null;
-                this.isError = false;
-
-                // this.$router.push({ name: 'order-success' });
-            }
+        async setItemToRemoveFromCart(itemId, itemName, deleteCount, isDeleteAll) {
+            await this.$store.commit('employee/setItemToRemoveFromCart', { itemId, itemName, deleteCount })
+            if (!isDeleteAll)
+                this.removeCartItem()
         },
-        async removeCartItem(itemId, itemName, deleteCount) {
+        async loadRazorPay() {
+            return new Promise(resolve => {
+                const script = document.createElement('script')
+                script.src = this.script
+                script.onload = () => {
+                    resolve(true)
+                }
+                script.onerror = () => {
+                    resolve(false)
+                }
+                document.body.appendChild(script)
+            })
+        },
+        async handlePayment() {
+            await this.$store.commit('employee/setStatusLoading', true)
+            await this.$store.commit('employee/setOrderStatus', { status: 'processing' })
+        },
+        async removeCartItem() {
             await this.$store.commit('setShowToast', { showToast: false, toastMessage: null })
 
             const res = await this.$store.dispatch('employee/removeFromCart', {
                 empId: this.$store.getters['auth/user'].empId,
-                itemId,
-                deleteCount,
+                itemId: this.selectedItemToRemoveFromCart.itemId,
+                deleteCount: this.selectedItemToRemoveFromCart.deleteCount,
             });
             if (res) {
                 this.isError = true;
                 this.error = res;
             } else {
-                await this.$store.commit('setShowToast', { showToast: true, toastMessage: `${itemName} removed from cart.` })
+                await this.$store.commit('setShowToast', { showToast: true, toastMessage: `${this.selectedItemToRemoveFromCart.itemName} removed from cart.` })
                 this.error = null;
                 this.isError = false;
             }
@@ -355,7 +308,7 @@ export default {
     font-size: 5rem;
 }
 
-.go-back {
+/* .go-back {
     font-size: 1rem;
     font-weight: 400 !important;
     text-transform: uppercase;
@@ -373,7 +326,7 @@ export default {
     color: #006363 !important;
     background-color: white !important;
     transition: background-color 0.5s;
-}
+} */
 
 .place-order.btn:active,
 .go-back.btn:active {
@@ -382,6 +335,7 @@ export default {
     transform: scale(0.95);
 }
 
+/* 
 .go-back.summary {
     background: #fff;
     padding: 0.375rem 0.75rem;
@@ -390,6 +344,37 @@ export default {
     border-color: #006363;
     font-weight: 700;
     box-shadow: 0px 4px 15px -5px rgba(0, 0, 0, 0.3);
+} */
+
+.go-back {
+    /* font-size: 0.9rem !important; */
+    text-transform: uppercase !important;
+    background-color: #006363 !important;
+    /* padding: 10px 20px !important; */
+    color: #fff !important;
+    /* border-radius: 40px !important; */
+    /* font-weight: 700 !important; */
+    /* box-shadow: 0px 4px 15px -5px rgba(0, 0, 0, 0.3) !important; */
+}
+
+.go-back:active,
+.go-back:hover {
+    border-color: #006363 !important;
+    color: #006363 !important;
+    background-color: white !important;
+    transition: background-color 0.5s;
+}
+
+.item-name span:first-child {
+    max-width: 15rem;
+    overflow-wrap: break-word;
+}
+
+@media screen and (max-width: 575px) {
+    .item-name span:first-child {
+        max-width: 6rem;
+        overflow-wrap: break-word;
+    }
 }
 </style>
   

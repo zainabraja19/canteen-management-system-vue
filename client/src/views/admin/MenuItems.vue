@@ -24,7 +24,9 @@
           <tbody>
             <tr v-for="(item, index) in items" :key="index">
               <th scope="row">{{ (currentPage - 1) * 10 + index + 1 }}</th>
-              <td>{{ item.itemName }}</td>
+              <td class="item-name">
+                <p class="m-0">{{ item.itemName }}</p>
+              </td>
               <td>{{ formatPrice(+item.price) }}</td>
               <td>{{ item.isAvailable ? 'Yes' : 'No' }}</td>
               <!-- <td>
@@ -99,13 +101,19 @@
                 <label for="itemName" class="form-label"><strong>Item Name</strong></label>
                 <input type="text" class="form-control" id="itemName" name="itemName" v-model.trim="itemName"
                   maxlength="50" />
+                <p class="text-danger mt-2 mb-0" v-if="itemName === ''">
+                  <i class="bi bi-info-circle"></i> Item Name is required
+                </p>
               </div>
               <div class="col-12">
                 <label for="price" class="form-label"><strong>Price</strong></label>
-                <input type="number" class="form-control" id="price" name="price" v-model.trim="price" min="0" max="1000"
-                  @input="validatePrice" />
+                <input type="number" class="form-control" id="price" name="price" v-model.trim="price" required min="1"
+                  max="1000" @input="validatePrice" />
                 <p class="text-danger mt-2 mb-0" v-if="!isValidPrice">
-                  Price must be a valid number between 0 and 1000.
+                  <i class="bi bi-info-circle"></i>
+                  <span v-if="price === ''"> Price is required</span>
+                  <span v-else>
+                    Price must be a valid number between 1 and 1000.</span>
                 </p>
               </div>
               <div class="col-12">
@@ -126,7 +134,7 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="isValidPrice = true">
                   Cancel
                 </button>
                 <button type="submit" class="btn btn-dark" data-bs-dismiss="modal" :disabled="!isValidPrice">
@@ -232,16 +240,17 @@ export default {
       this.fetchData();
     },
     validatePrice() {
-      if (this.price === '') {
-        this.isValidPrice = true;
-        return;
+      if (this.price === 'e') {
+        // this.price = '';
+        this.isValidPrice = false
       }
-      const pattern = /^[0-9]+\.?\d*$/;
+
+      const pattern = /^[0-9]+(\.?\d*)?(e[+-]?\d+)?$/;
       this.isValidPrice = pattern.test(this.price);
 
       if (this.isValidPrice) {
         const numericPrice = parseFloat(this.price);
-        if (numericPrice < 0 || numericPrice > 1000) {
+        if (numericPrice <= 0 || numericPrice > 1000) {
           this.isValidPrice = false;
         }
       }
@@ -346,6 +355,11 @@ export default {
   color: #006363 !important;
   background-color: white !important;
   transition: background-color 0.5s;
+}
+
+.item-name {
+  max-width: 10rem;
+  overflow-wrap: break-word;
 }
 
 /* .toast {

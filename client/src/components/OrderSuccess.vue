@@ -1,6 +1,11 @@
 <template>
   <error-toast v-if="isError" :error="error"></error-toast>
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh">
+  <div v-if="isLoading" class="loading d-flex justify-content-center align-items-center mh-100">
+    <div class="spinner-grow text-secondary" style="width: 3rem; height: 3rem" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  <div v-else class="d-flex justify-content-center align-items-center" style="min-height: 80vh">
     <div class="card p-4 col-xl-5 col-lg-6 col-md-9 col-sm-11 col-12 shadow bg-body rounded text-center">
       <h1 class="text-center"><i class="bi bi-check2-circle"></i></h1>
       <h5><strong>Your order has been placed.</strong></h5>
@@ -38,7 +43,10 @@ export default {
     };
   },
   async mounted() {
+    await this.$store.commit('employee/setStatusLoading', false)
     this.currentOrderId = await this.$store.getters['employee/currentOrderId']
+
+    this.isLoading = false
   },
   methods: {
     async generateInvoice() {
@@ -72,7 +80,7 @@ export default {
     },
   },
   async unmounted() {
-    await this.$store.commit('employee/setOrderPlaced', { orderPlaced: false });
+    await this.$store.commit('employee/setOrderStatus', { status: 'incomplete' })
     await this.$store.commit('employee/setOrderId', { currentOrderId: null });
   },
   components: {

@@ -49,3 +49,10 @@ export default {
     },
 }
 </script>
+
+<style scoped>
+.d-flex .toast-body {
+    max-width: 100%;
+    overflow-wrap: break-word;
+}
+</style>

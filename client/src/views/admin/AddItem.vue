@@ -15,22 +15,22 @@
           </p>
           <div class="col-12">
             <label for="price" class="form-label">Price <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="price" name="price" v-model.trim="price" required min="0"
+            <input type="number" class="form-control" id="price" name="price" v-model.trim="price" required min="1"
               max="1000" @input="validatePrice" />
           </div>
           <p class="text-danger mt-2 mb-0" v-if="!isValidPrice">
             <i class="bi bi-info-circle"></i>
-            <span v-if="price === ''"> Price is required</span>
+            <span v-if="price == ''"> Price is required</span>
             <span v-else>
-              Price must be a valid number between 0 and 1000.</span>
+              Price must be a valid number between 1 and 1000.</span>
           </p>
           <!-- <div class="col-12">
               <label for="price" class="form-label">Quantity Available</label>
               <input type="number" class="form-control" id="quantity" name="quantity" v-model.trim="quantity" required />
             </div> -->
 
-          <div class="col-12 d-grid mt-4">
-            <button type="submit" class="add-new-item btn" :disabled="!formIsValid">
+          <div class="col-12 d-flex justify-content-center mt-4">
+            <button type="submit" class="add-new-item btn w-50" :disabled="!formIsValid">
               <div v-if="isLoading">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 <span class="visually-hidden">Loading...</span>
@@ -98,12 +98,13 @@ export default {
       if (this.price === 'e') {
         this.price = '';
       }
-      const pattern = /^[0-9]+(\.?\d*)?(e[+-]?\d+)?$/;
+
+      const pattern = /^[0-9]+(\.?\d*)?(e?\d+)?$/;
       this.isValidPrice = pattern.test(this.price);
 
       if (this.isValidPrice) {
         const numericPrice = parseFloat(this.price);
-        if (numericPrice < 0 || numericPrice > 1000) {
+        if (numericPrice <= 0 || numericPrice > 1000) {
           this.isValidPrice = false;
         }
       }
@@ -117,14 +118,14 @@ export default {
 
 <style scoped>
 .add-new-item {
-  font-size: 0.9rem !important;
+  /* font-size: 0.9rem !important; */
   text-transform: uppercase !important;
   background-color: #006363 !important;
-  padding: 10px 20px !important;
+  /* padding: 10px 20px !important; */
   color: #fff !important;
   border-radius: 40px !important;
   font-weight: 700 !important;
-  box-shadow: 0px 4px 15px -5px rgba(0, 0, 0, 0.3) !important;
+  /* box-shadow: 0px 4px 15px -5px rgba(0, 0, 0, 0.3) !important; */
 }
 
 .add-new-item:active,
