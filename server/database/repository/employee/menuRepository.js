@@ -10,11 +10,9 @@ const Menu = require("../../models/menu");
 //     }
 // }
 
-const findMenuItem = async (data, callback) => {
+const findMenuItem = async (data) => {
     try {
         return await Menu.find(data);
-
-        return menuItem;
     } catch (error) {
         throw error;
     }

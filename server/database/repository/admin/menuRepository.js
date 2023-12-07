@@ -38,8 +38,6 @@ const editItem = async (data) => {
             { ...data.body },
             { new: true }
         );
-
-        return result;
     } catch (error) {
         throw error;
     }

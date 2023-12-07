@@ -37,8 +37,6 @@ const cancelOrder = async (data) => {
             { employee: data.empId, orderId: data.orderId },
             { cancelled: true }
         );
-
-        return "Order cancelled.";
     } catch (error) {
         throw error;
     }

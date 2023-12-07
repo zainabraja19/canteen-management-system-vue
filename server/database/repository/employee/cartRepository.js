@@ -3,8 +3,6 @@ const Cart = require("../../models/cart");
 const findItemInCart = async (data) => {
     try {
         return await Cart.findOne(data).populate("items.item");
-
-        return cart;
     } catch (error) {
         throw error;
     }
@@ -44,8 +42,6 @@ const emptyCart = async (data) => {
             { items: [], totalItems: 0, cartTotal: 0 },
             { new: true }
         );
-
-        return updatedCart;
     } catch (error) {
         throw error;
     }

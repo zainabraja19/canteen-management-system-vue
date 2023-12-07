@@ -3,7 +3,6 @@ const Employee = require("../../models/employee");
 const fetchEmployeeDetails = async (data) => {
     try {
         return await Employee.findOne(data.query).select(data.select);
-        return emp;
     } catch (error) {
         throw error;
     }
@@ -16,14 +15,12 @@ const editEmployeeDetails = async (data) => {
             { ...data.body },
             { new: true }
         ).select("empId name phone email role");
-
-        return emp;
     } catch (error) {
         throw error;
     }
 };
 
-const uploadFile = async (data, callback) => {
+const uploadFile = async (data) => {
     const { field, empId, file, fileType } = data;
 
     try {
@@ -42,8 +39,6 @@ const uploadFile = async (data, callback) => {
 
             { new: true, passRawResult: true }
         );
-
-        return;
     } catch (error) {
         throw error;
     }

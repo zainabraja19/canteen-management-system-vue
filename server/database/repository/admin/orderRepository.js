@@ -20,7 +20,7 @@ const fetchOrders = async (data) => {
     }
 };
 
-const completeOrder = async (data, callback) => {
+const completeOrder = async (data) => {
     try {
         await Order.findOneAndUpdate(
             { orderId: data.orderId },
